@@ -40,7 +40,7 @@
   replace:
       path   : "{{ dest_folder }}/group_vars/k8s_cluster/addons.yml"
       regexp : "^helm_enabled:[ |\t]+.*$"
-      replace: "helm_enabled: \"{{ helm_enabled }}\""
+      replace: "helm_enabled: {{ helm_enabled }}"
 
 - name: Patch metrics_server_enabled
   replace:
