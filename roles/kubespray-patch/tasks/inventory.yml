@@ -2,7 +2,7 @@
   replace:
     path   : "{{ dest_folder }}/group_vars/all/all.yml"
     regexp : "^## apiserver_loadbalancer_domain_name:.*$"
-    replace: "apiserver_loadbalancer_domain_name: {{ apiserver_loadbalancer_domain_name }}"
+    replace: "apiserver_loadbalancer_domain_name: \"{{ apiserver_loadbalancer_domain_name }}\""
   when: apiserver_loadbalancer_domain_name is defined
 
 - name: Patch loadbalancer_apiserver
@@ -22,13 +22,13 @@
   replace:
       path   : "{{ dest_folder }}/group_vars/all/all.yml"
       regexp : "^# http_proxy:.*$"
-      replace: "http_proxy: {{ http_proxy }}"
+      replace: "http_proxy: \"{{ http_proxy }}\""
 
 - name: Patch https_server variable
   replace:
       path   : "{{ dest_folder }}/group_vars/all/all.yml"
       regexp : "^# https_proxy:.*$"
-      replace: "https_proxy: {{ http_proxy }}"
+      replace: "https_proxy: \"{{ http_proxy }}\""
 
 - name: Patch crio registry
   replace:
@@ -40,25 +40,25 @@
   replace:
       path   : "{{ dest_folder }}/group_vars/k8s_cluster/addons.yml"
       regexp : "^helm_enabled:[ |\t]+.*$"
-      replace: "helm_enabled: {{ helm_enabled }}"
+      replace: "helm_enabled: \"{{ helm_enabled }}\""
 
 - name: Patch metrics_server_enabled
   replace:
       path   : "{{ dest_folder }}/group_vars/k8s_cluster/addons.yml"
       regexp : "^metrics_server_enabled:[ |\t]+.*$"
-      replace: "metrics_server_enabled: {{ metrics_server_enabled }}"
+      replace: "metrics_server_enabled: \"{{ metrics_server_enabled }}\""
 
 - name: Patch local_volume_provisioner_enabled
   replace:
       path   : "{{ dest_folder }}/group_vars/k8s_cluster/addons.yml"
       regexp : "^local_volume_provisioner_enabled:[ |\t]+.*$"
-      replace: "local_volume_provisioner_enabled: {{ local_volume_provisioner_enabled }}"
+      replace: "local_volume_provisioner_enabled: \"{{ local_volume_provisioner_enabled }}\""
 
 - name: Patch kube_network_plugin
   replace:
       path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
       regexp : "^kube_network_plugin:[ |\t]+.*$"
-      replace: "kube_network_plugin: {{ kube_network_plugin }}"
+      replace: "kube_network_plugin: \"{{ kube_network_plugin }}\""
 
 - name: Patch kube_service_addresses
   replace:
