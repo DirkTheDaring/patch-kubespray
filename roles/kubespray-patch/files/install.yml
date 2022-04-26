@@ -1,0 +1,62 @@
+---
+- name: Cilium | Prepare Fallback DNS
+  file:
+    dest: "/etc/systemd/resolved.conf.d"
+    state: directory
+    mode:  0755
+    owner: root
+    group: root
+
+- name: Cilium | Create Fallback DNS
+  copy:
+    dest: "/etc/systemd/resolved.conf.d/dns_servers.conf"
+    content: |-
+      [Resolve]
+      DNS={{ upstream_dns_servers | join(',') }}
+      Domains=~.
+  register: copy_result
+
+- name: Cilium | Restart Service systemd-resolved
+  ansible.builtin.systemd:
+    state: restarted
+    name:  systemd-resolved
+  when: copy_result.changed
+
+- name: Cilium | Ensure BPFFS mounted
+  mount:
+    fstype: bpf
+    path: /sys/fs/bpf
+    src: bpffs
+    state: mounted
+
+- name: Cilium | Create Cilium certs directory
+  file:
+    dest: "{{ cilium_cert_dir }}"
+    state: directory
+    mode: 0750
+    owner: root
+    group: root
+  when:
+    - cilium_identity_allocation_mode == "kvstore"
+
+  # if you cahnge cert_dir cross_device no hardlinking is possible
+  # there changed to copy
+- name: Cilium | Link etcd certificates for cilium
+  ansible.builtin.copy:
+    remote_src: true
+    src:  "{{ etcd_cert_dir }}/{{ item.s }}"
+    dest: "{{ cilium_cert_dir }}/{{ item.d }}"
+    mode: 0644
+  loop:
+    - {s: "ca.pem",                                d: "ca_cert.crt"}
+    - {s: "node-{{ inventory_hostname }}.pem",     d: "cert.crt"}
+    - {s: "node-{{ inventory_hostname }}-key.pem", d: "key.pem"}
+  when:
+    - cilium_identity_allocation_mode == "kvstore"
+
+- name: Cilium | Enable portmap addon
+  template:
+    src: 000-cilium-portmap.conflist.j2
+    dest: /etc/cni/net.d/000-cilium-portmap.conflist
+    mode: 0644
+  when: cilium_enable_portmap

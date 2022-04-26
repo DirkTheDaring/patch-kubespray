@@ -1,0 +1,114 @@
+---
+- name: Set facts
+  set_fact:
+    cilium_helm_repo_name:  cilium
+    cilium_helm_repo_url:   https://helm.cilium.io/
+    cilium_helm_chart_name: cilium
+    cilium_helm_chart_version: "{{ cilium_version }}"
+    cilium_chart_release_name: cilium
+
+- name: Render cilum-values yaml file as string
+  set_fact:
+    cilium_values_yaml: "{{ lookup('template', 'cilium-values.yml.j2') }}"
+
+- name: Convert cilium_values_yaml to dictionary
+  set_fact:
+    cilium_values: "{{ cilium_values_yaml | from_yaml }}"
+
+  # Create extra Mounts in the pods which point to the
+  # /etc/cilium/certs_dir
+  # After the deployment of the helm chart, the
+  # cilium-config is patched to match the etcd-config to these
+  # extra-mounts
+- name: If kvstore add path to etcd certificates to cilium_values
+  block:
+  - name: Merge facts replace existing values
+    set_fact:
+      exraHostPathMounts:
+      - name:      etcd-secrets-kubespray
+        mountPath: "{{ cilium_cert_dir }}"
+        hostPath:  "{{ cilium_cert_dir }}"
+        readOnly:  true
+
+  - name: Set Facts to access kubespray etcd certs
+    set_fact:
+      patch0:
+        # Deactivated for now
+        #k8sServiceHost: "{{ kube_apiserver_ip }}"
+        #k8sServicePort: "{{ kube_apiserver_port }}"
+        ipam:
+          operator:
+            clusterPoolIPv4PodCIDR:  "{{ kube_pods_subnet }}"
+            clusterPoolIPv4MaskSize: "{{ kube_network_node_prefix }}"
+        etcd:
+          enabled: true
+          ssl: true
+            #endpoints: "{{ [ 'https://' ] | product(etcd_access_addresses.split(',')) | map('join') }}"
+          endpoints: "{{ cilium_etcd_endpoints }}"
+        extraHostPathMounts: "{{ exraHostPathMounts }}"
+        operator:
+          extraHostPathMounts: "{{ exraHostPathMounts }}"
+
+  - name: Merge facts append when they do not exists
+    set_fact:
+      cilium_values: "{{ cilium_values | combine(patch0,recursive=True) }}"
+  when:
+    - cilium_identity_allocation_mode == "kvstore"
+    - inventory_hostname == groups['kube_control_plane'][0]
+
+- name: Add Chart repo
+  kubernetes.core.helm_repository:
+    name:     "{{ cilium_helm_repo_name }}"
+    repo_url: "{{ cilium_helm_repo_url }}"
+  when: inventory_hostname == groups['kube_control_plane'][0]
+
+- name: Deploy helm chart
+  kubernetes.core.helm:
+    chart_ref:         "{{ cilium_helm_repo_name }}/{{ cilium_helm_chart_name }}"
+    chart_version:     "{{ cilium_helm_chart_version }}"
+    release_namespace: "kube-system"
+    release_name:      "{{ cilium_chart_release_name }}"
+    values:            "{{ cilium_values }}"
+    update_repo_cache: yes
+  when: inventory_hostname == groups['kube_control_plane'][0]
+
+  # It is not possible to provide the helm chart with an own etcd-config
+  # Therefore patch the the ConfigMap after deployment
+- name: Cilium | Render Patch content
+  set_fact:
+    etcd_config: |-
+      endpoints:
+      {% for url in cilium_etcd_endpoints %}
+      - {{ url }}
+      {% endfor %}
+      ca-file:   {{ cilium_cert_dir }}/ca_cert.crt
+      key-file:  {{ cilium_cert_dir }}/key.pem
+      cert-file: {{ cilium_cert_dir }}/cert.crt
+  when: inventory_hostname == groups['kube_control_plane'][0]
+
+- name: Cilium | Patch cilium-config
+  kubernetes.core.k8s:
+    state: present
+    kind: ConfigMap
+    name:      cilium-config
+    namespace: kube-system
+    definition:
+      data:
+        etcd-config: "{{ etcd_config }}"
+  register: patch_result
+  when: inventory_hostname == groups['kube_control_plane'][0]
+
+- name: Cilium | Reset pods
+  command: "{{ kubectl }} -n kube-system delete pods -l k8s-app=cilium"
+  when:
+  - inventory_hostname == groups['kube_control_plane'][0]
+  - patch_result.changed
+
+- name: Cilium | Wait for pods to run
+  command: "{{ kubectl }} -n kube-system get pods -l k8s-app=cilium -o jsonpath='{.items[?(@.status.containerStatuses[0].ready==false)].metadata.name}'"  # noqa 601
+  register: pods_not_ready
+  until:    pods_not_ready.stdout.find("cilium")==-1
+  retries: 30
+  delay: 10
+  failed_when: false
+  when: inventory_hostname == groups['kube_control_plane'][0]

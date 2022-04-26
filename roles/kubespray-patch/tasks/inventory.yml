@@ -1,0 +1,100 @@
+- name: Patch apiserver_loadbalancer_domain_name
+  replace:
+    path   : "{{ dest_folder }}/group_vars/all/all.yml"
+    regexp : "^## apiserver_loadbalancer_domain_name:.*$"
+    replace: "apiserver_loadbalancer_domain_name: {{ apiserver_loadbalancer_domain_name }}"
+  when: apiserver_loadbalancer_domain_name is defined
+
+- name: Patch loadbalancer_apiserver
+  replace:
+    path   : "{{ dest_folder }}/group_vars/all/all.yml"
+    regexp : "^# loadbalancer_apiserver:.*$"
+    replace: "{{ loadbalancer_apiserver }}"
+  when: loadbalancer_apiserver is defined
+
+- name: Patch upstream dns_servers
+  replace:
+      path   : "{{ dest_folder }}/group_vars/all/all.yml"
+      regexp : "^# upstream_dns_servers:"
+      replace: "{{ upstream_dns_servers }}"
+
+- name: Patch http_server variable
+  replace:
+      path   : "{{ dest_folder }}/group_vars/all/all.yml"
+      regexp : "^# http_proxy:.*$"
+      replace: "http_proxy: {{ http_proxy }}"
+
+- name: Patch https_server variable
+  replace:
+      path   : "{{ dest_folder }}/group_vars/all/all.yml"
+      regexp : "^# https_proxy:.*$"
+      replace: "https_proxy: {{ http_proxy }}"
+
+- name: Patch crio registry
+  replace:
+      path   : "{{ dest_folder }}/group_vars/all/cri-o.yml"
+      regexp : "^# crio_registry_auth:"
+      replace: "{{ crio_registry_auth }}"
+
+- name: Patch helm_enabled
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/addons.yml"
+      regexp : "^helm_enabled:[ |\t]+.*$"
+      replace: "helm_enabled: {{ helm_enabled }}"
+
+- name: Patch metrics_server_enabled
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/addons.yml"
+      regexp : "^metrics_server_enabled:[ |\t]+.*$"
+      replace: "metrics_server_enabled: {{ metrics_server_enabled }}"
+
+- name: Patch local_volume_provisioner_enabled
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/addons.yml"
+      regexp : "^local_volume_provisioner_enabled:[ |\t]+.*$"
+      replace: "local_volume_provisioner_enabled: {{ local_volume_provisioner_enabled }}"
+
+- name: Patch kube_network_plugin
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+      regexp : "^kube_network_plugin:[ |\t]+.*$"
+      replace: "kube_network_plugin: {{ kube_network_plugin }}"
+
+- name: Patch kube_service_addresses
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+      regexp : "^kube_service_addresses:[ |\t]+.*$"
+      replace: "kube_service_addresses: {{ kube_service_addresses }}"
+  when: kube_service_addresses is defined
+
+- name: Patch kube_pods_subnet
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+      regexp : "^kube_pods_subnet:[ |\t]+.*$"
+      replace: "kube_pods_subnet: {{ kube_pods_subnet }}"
+  when: kube_pods_subnet is defined 
+
+- name: Patch kube_proxy_strict_arp
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+      regexp : "^kube_proxy_strict_arp:[ |\t]+.*$"
+      replace: "kube_proxy_strict_arp: {{ kube_proxy_strict_arp }}"
+
+- name: Patch container_manager
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+      regexp : "^container_manager:[ |\t]+.*$"
+      replace: "container_manager: {{ container_manager }}"
+
+- name: Patch enable_nodelocaldns
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+      regexp : "^enable_nodelocaldns:[ |\t]+.*$"
+      replace: "enable_nodelocaldns: {{ enable_nodelocaldns }}"
+
+- name: Patch cilium
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-net-cilium.yml"
+      regexp : "^# see roles/network_plugin/cilium/defaults/main.yml.*$"
+      replace: "{{ cilium }}"
+  when: cilium is defined

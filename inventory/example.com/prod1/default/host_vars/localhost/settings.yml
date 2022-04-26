@@ -1,0 +1,132 @@
+configurations:
+- "kubespray-example.com-prod1-default.sh"
+- "kubespray-example.com-storage1-default.sh"
+reset_configurations:
+- "reset-example.com-prod1-default.sh"
+- "reset-example.com-storage1-default.sh"
+
+external_inventory_configurations:
+- src:  path/to/your/external/configuration
+  dest: clusters
+
+kubespray_git_repository: https://github.com/kubernetes-sigs/kubespray
+kubespray_git_version: a4f26dc8f3ca34cba93f577d88a2978c622b52f0
+kubespray_git_folder: /opt/target
+
+kubespray_patch_prefix: "{{ configuration_name }}-{{ configuration_stage }}-{{ configuration_variant }}"
+
+# Remember this is text therefore |-
+upstream_dns_servers: |-
+  upstream_dns_servers:
+  - 192.168.178.3
+
+http_proxy:  "http://192.168.0.254:3128"
+https_proxy: "http://192.168.0.254:3128"
+helm_enabled: true
+metrics_server_enabled: true
+local_volume_provisioner_enabled: true
+kube_network_plugin: cilium
+kube_proxy_strict_arp: true
+enable_nodelocaldns: false
+
+container_manager: crio
+
+crio_registry_auth: |- 
+  crio_registry_auth:
+  - registry: registry.example.com
+    username: username
+    password: password
+  crio_registries:
+  #- prefix: docker.io
+  #  insecure: false
+  #  blocked: false
+  #  location: docker.io
+  #  mirrors:
+  #  - location: registry-docker-io.example.com
+  #    insecure: false
+  
+  - prefix: quay.io
+    insecure: false
+    blocked: false
+    unqualified: false
+    location: quay.io
+    mirrors:
+    - location: registry-quay-io.example.com
+      insecure: false
+  
+  - prefix: k8s.gcr.io
+    insecure: false
+    blocked: false
+    unqualified: false
+    location: k8s.gcr.io
+    mirrors:
+    - location: registry-k8s-gcr-io.example.com
+      insecure: false
+  
+  - prefix: gcr.io
+    insecure: false
+    blocked: false
+    unqualified: false
+    location: gcr.io
+    mirrors:
+    - location: registry-gcr-io.example.com
+      insecure: false
+  
+  - prefix: ghcr.io
+    insecure: false
+    blocked: false
+    unqualified: false
+    location: ghcr.io
+    mirrors:
+    - location: registry-ghcr-io.example.com
+      insecure: false
+  
+  - unqualified: true
+    location: registry.fedoraproject.org
+  - unqualified: true
+    location: registry.access.redhat.com
+  - unqualified: true
+    location: registry.centos.org
+  - unqualified: true
+    location: docker.io
+    mirrors:
+    - location: registry-docker-io.example.com
+      insecure: false
+
+cilium: |-
+  cilium_version: "v1.11.4"
+  # cilium_identity_allocation_mode: kvstore # kvstore or crd
+  cilium_enable_prometheus: true
+  cilium_enable_hubble: true
+  
+  # Optional features
+  cilium_enable_prometheus: true
+  
+  # Hubble
+  ### Enable Hubble without install
+  cilium_enable_hubble: true
+  ### Enable Hubble Metrics
+  cilium_enable_hubble_metrics: true
+  ### if cilium_enable_hubble_metrics: true
+  cilium_hubble_metrics:
+   - dns
+   - drop
+   - tcp
+   - flow
+   - icmp
+   - http
+  
+  ### Enable Hubble install
+  cilium_hubble_install: true
+  ### Enable auto generate certs if cilium_hubble_install: true
+  cilium_hubble_tls_generate: true
+  
+  # FIXME hardcoded in roles/network_plugin/cilium/templates/cilium-config.yml.j2
+  # bpf-ct-global-any-max      262144
+  # bpf-ct-global-tcp-max      524288
+  
+  cilium_preallocate_bpf_maps: true
+  
+  cilium_config_extra_vars:
+    ## https://github.com/cilium/cilium/issues/9117
+    bpf-policy-map-max: "65536"

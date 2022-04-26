@@ -1,0 +1,29 @@
+- name: Get version from git repo
+  set_fact:
+    version:  "{{ kubespray_git_version.split('-')[1] if '.' in kubespray_git_version else kubespray_git_version[:8] | string }}"
+
+- name: Set folder name
+  set_fact:
+    dest_folder_name: "{{ kubespray_patch_prefix }}-{{ version }}"
+
+- name: Set target folder
+  set_fact:
+    dest_folder: "{{ kubespray_git_folder }}/inventory/{{ dest_folder_name }}"
+
+- name: Test if target folder already exists
+  stat:
+    path:   "{{ dest_folder }}"
+  register: _dest_folder
+
+- name: Copy sample inventory
+  ansible.builtin.copy:
+    src:  "{{ kubespray_git_folder }}/inventory/sample/"
+    dest: "{{ dest_folder }}"
+  when: not _dest_folder.stat.exists
+
+- name: Create a symbolic link
+  ansible.builtin.file:
+    src:  "{{ dest_folder_name }}"
+    dest: "{{ kubespray_git_folder }}/inventory/default"
+    state: link
+

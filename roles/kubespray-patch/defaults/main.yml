@@ -1,0 +1,4 @@
+kubespray_patch_prefix: patched
+configurations: []
+external_inventory_configurations: []
+reset_configurations: []

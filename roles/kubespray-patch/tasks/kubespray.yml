@@ -1,0 +1,208 @@
+- name: Create a directory if it does not exist
+  ansible.builtin.file:
+    path: "{{ kubespray_git_folder }}/bin"
+    state: directory
+    mode: '0755'
+
+- name: Copy bin files
+  ansible.builtin.copy:
+    src:  "{{ item }}"
+    dest: "{{ kubespray_git_folder }}/{{ item }}"
+    mode: '0755'
+  loop:
+  - bin/kubespray.sh
+  - bin/reset.sh
+
+- name: Add patch to git
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - add
+      - "{{ item }}"
+  loop: 
+  - bin/kubespray.sh
+  - bin/reset.sh
+
+- name: Commit patch
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - commit 
+      - -m 
+      - |-
+        kubespray.sh which going to be symlinked
+        usually not called directly but with a symlink
+
+- name: Create a symbolic link
+  ansible.builtin.file:
+    src:  "./bin/kubespray.sh"
+    dest: "{{ kubespray_git_folder }}/{{ item }}"
+    state: link
+  loop: "{{ configurations }}"
+
+- name: Create a symbolic link
+  ansible.builtin.file:
+    src:  "./bin/reset.sh"
+    dest: "{{ kubespray_git_folder }}/{{ item }}"
+    state: link
+  loop: "{{ reset_configurations }}"
+
+- name: Create a symbolic link for external inventories
+  ansible.builtin.file:
+    src:  "{{ item.src }}"
+    dest: "{{ kubespray_git_folder }}/inventory/{{ item.dest }}"
+    state: link
+  loop: "{{ external_inventory_configurations }}"
+
+- name: Add patch to git for configurations
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - add
+      - "{{ item }}"
+  loop: "{{ configurations + reset_configurations }}"
+
+#- name: Add patch to git for external_inventory_configurations
+#  ansible.builtin.command:
+#    chdir: "{{ kubespray_git_folder }}"
+#    argv:
+#      - git
+#      - add
+#      - "{{ kubespray_git_folder }}/inventory/{{ item.dest }}"
+#  loop: "{{ external_inventory_configurations }}"
+
+- name: Commit patch
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - commit 
+      - -m 
+      - |-
+        All symlinks specific to this setup
+
+
+- name: Patch kubespray for nvidia-operator support
+  replace:
+      path   : "{{ kubespray_git_folder }}/roles/container-engine/cri-o/templates/crio.conf.j2"
+      regexp : "^[ |\t]+\"/usr/share/containers/oci/hooks.d\",$"
+      replace: "        \"/etc/containers/oci/hooks.d\", \"/usr/share/containers/oci/hooks.d\","
+
+- name: Add patch to git
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - add
+      - "{{ item }}"
+  loop: 
+  - roles/container-engine/cri-o/templates/crio.conf.j2
+
+- name: Commit patch
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - commit 
+      - -m 
+      - |-
+        enable availability of /etc/containers/oci/hooks.d in crio.conf for the nvidia gpu-operator
+
+# --- a/roles/kubernetes/node/templates/kubelet.env.v1beta1.j2
+# +++ b/roles/kubernetes/node/templates/kubelet.env.v1beta1.j2
+# @@ -22,6 +22,7 @@ KUBELET_HOSTNAME="--hostname-override={{ kube_override_hostname }}"
+#  --dynamic-config-dir={{ dynamic_kubelet_configuration_dir }} \
+#  {% endif %}
+#  --runtime-cgroups={{ kubelet_runtime_cgroups }} \
+# +--kubelet-cgroups={{ kubelet_runtime_cgroups }} \
+
+- name: Patch kubelet.env to remove cadvisor failure reporting in logs
+  lineinfile:
+    dest:        "{{ kubespray_git_folder }}/roles/kubernetes/node/templates/kubelet.env.v1beta1.j2"
+    insertafter: "--runtime-cgroups={% raw %}{{ kubelet_runtime_cgroups }}{% endraw %} \\\\"
+    line:        "--kubelet-cgroups={% raw %}{{ kubelet_runtime_cgroups }}{% endraw %} \\"
+
+- name: Add them to git 
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - add
+      - "{{ item }}"
+  loop:
+  - roles/kubernetes/node/templates/kubelet.env.v1beta1.j2
+
+- name: Commit patch
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - commit 
+      - -m 
+      - |-
+        avoid a lot of error messages because of cadvisor failure in kubelet
+
+#     - { role: kubernetes-apps/cluster_roles, tags: cluster-roles }
+#+    - { role: kubernetes-apps/helm, tags: helm }
+
+- name: Patch cluster.yml for early helm availability
+  lineinfile:
+    dest:        "{{ kubespray_git_folder }}/cluster.yml"
+    insertafter: "    - { role: kubernetes-apps/cluster_roles, tags: cluster-roles }"
+    line:        "    - { role: kubernetes-apps/helm, tags: helm }"
+
+- name: Add them to git 
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - add
+      - "{{ item }}"
+  loop: 
+  - cluster.yml
+
+- name: Commit patch
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - commit 
+      - -m 
+      - |-
+        make helm binary available before we go to network_plugin install
+
+- set_fact:
+    file_list:
+    - roles/network_plugin/cilium/tasks/apply.yml
+    - roles/network_plugin/cilium/tasks/install.yml
+    - roles/network_plugin/cilium/templates/cilium-values.yml.j2
+
+- name: Patch files
+  ansible.builtin.copy:
+    src:  "{{ item | basename }}"
+    dest: "{{ kubespray_git_folder }}/{{ item }}"
+    mode: 0644
+  loop: "{{ file_list }}"
+
+- name: Add them to git 
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - add
+      - "{{ item }}"
+  loop: "{{ file_list + [ 'cluster.yml' ] }}"
+
+- name: Commit patch
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - commit 
+      - -m 
+      - |-
+        deploy cilium as helm chart
+

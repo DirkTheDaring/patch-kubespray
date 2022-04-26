@@ -1,0 +1,5 @@
+- name: Checkout kubespray repository
+  ansible.builtin.git:
+    repo:    "{{ kubespray_git_repository }}" 
+    dest:    "{{ kubespray_git_folder }}"
+    version: "{{ kubespray_git_version }}"
