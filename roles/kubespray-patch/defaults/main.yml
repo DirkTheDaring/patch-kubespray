@@ -2,3 +2,7 @@ kubespray_patch_prefix: patched
 configurations: []
 external_inventory_configurations: []
 reset_configurations: []
+
+kubespray_git_repository: https://github.com/kubernetes-sigs/kubespray
+kubespray_git_version:    dc8ad7820613ad3b20502a8a3499359b3605cd9e
+kubespray_git_folder:     "{{ playbook_dir }}/target"

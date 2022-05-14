@@ -308,13 +308,13 @@ bpf:
 # DaemonSet.
 #
 # WARNING: Use with care!
-cleanBpfState: false
+cleanBpfState: {{ cilium_clean_bpf_state }}
 
 # -- Clean all local Cilium state from the initContainer of the cilium-agent
 # DaemonSet. Implies cleanBpfState: true.
 #
 # WARNING: Use with care!
-cleanState: false
+cleanState: {{ cilium_clean_state }}
 
 cni:
   # -- Install the CNI configuration and binary files into the filesystem.
