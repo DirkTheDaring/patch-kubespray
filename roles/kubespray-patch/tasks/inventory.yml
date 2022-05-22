@@ -48,11 +48,19 @@
       regexp : "^metrics_server_enabled:[ |\t]+.*$"
       replace: "metrics_server_enabled: \"{{ metrics_server_enabled }}\""
 
+
+- name: Patch local_path_provisioner_enabled
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/addons.yml"
+      regexp : "^local_path_provisioner_enabled:[ |\t]+.*$"
+      replace: "local_path_provisioner_enabled: {{ local_path_provisioner_enabled }}"
+  when: local_path_provisioner_enabled is defined
+
 - name: Patch local_volume_provisioner_enabled
   replace:
       path   : "{{ dest_folder }}/group_vars/k8s_cluster/addons.yml"
       regexp : "^local_volume_provisioner_enabled:[ |\t]+.*$"
-      replace: "local_volume_provisioner_enabled: \"{{ local_volume_provisioner_enabled }}\""
+      replace: "local_volume_provisioner_enabled: {{ local_volume_provisioner_enabled }}"
 
 - name: Patch kube_network_plugin
   replace:
@@ -91,6 +99,55 @@
       path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
       regexp : "^enable_nodelocaldns:[ |\t]+.*$"
       replace: "enable_nodelocaldns: {{ enable_nodelocaldns }}"
+
+- name: Patch kube_oidc_auth
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+      regexp : "^# kube_oidc_auth:.*$"
+      replace: "kube_oidc_auth: {{ kube_oidc_auth }}"
+  when: kube_oidc_auth is defined
+
+- name: Patch kube_oidc_url
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+      regexp : "^# kube_oidc_url:.*$"
+      replace: "kube_oidc_url: \"{{ kube_oidc_url }}\""
+  when: kube_oidc_url is defined
+
+- name: Patch kube_oidc_client_id
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+      regexp : "^# kube_oidc_client_id:.*$"
+      replace: "kube_oidc_client_id: \"{{ kube_oidc_client_id }}\""
+  when: kube_oidc_client_id is defined
+
+- name: Patch kube_oidc_username_claim
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+      regexp : "^# kube_oidc_username_claim:.*$"
+      replace: "kube_oidc_username_claim: {{ kube_oidc_username_claim }}"
+  when: kube_oidc_username_claim is defined
+
+- name: Patch kube_oidc_username_prefix
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+      regexp : "^# kube_oidc_username_prefix:.*$"
+      replace: "kube_oidc_username_prefix: \"{{ kube_oidc_username_prefix }}\""
+  when: kube_oidc_username_prefix is defined
+
+- name: Patch kube_oidc_groups_claim
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+      regexp : "^# kube_oidc_groups_claim:.*$"
+      replace: "kube_oidc_groups_claim: {{ kube_oidc_groups_claim }}"
+  when: kube_oidc_groups_claim is defined
+
+- name: Patch kube_oidc_groups_prefix
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+      regexp : "^# kube_oidc_groups_prefix:.*$"
+      replace: "kube_oidc_groups_prefix: \"{{ kube_oidc_groups_prefix }}\""
+  when: kube_oidc_groups_prefix is defined
 
 - name: Patch cilium
   replace:

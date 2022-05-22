@@ -20,7 +20,7 @@ DIRNAME=$(dirname "$0")
 
 # Split basename into array
 ARRAY=(${BASENAME//-/ })
-
+CONFIG_SCRIPT=${ARRAY[0]}
 CONFIG_NAME=${ARRAY[1]}
 CONFIG_STAGE=${ARRAY[2]}
 CONFIG_VARIANT=${ARRAY[3]}
@@ -36,12 +36,17 @@ INVENTORY_FILE=$(pick "inventory/clusters/${CONFIG_NAME}/${CONFIG_STAGE}/invento
 
 [ -z "${INVENTORY_DIR}" ] && echo "inventory dir does not exist: inventory/${CONFIG_NAME}/${CONFIG_STAGE}" && exit 1
 
+if [ "${CONFIG_SCRIPT}" == "upgrade" ]; then
+    PLAYBOOK=upgrade-cluster.yml
+else
+    PLAYBOOK=cluster.yml
+fi
+
 ansible-playbook\
     $OPTION_ALL_FILE\
     -i "$INVENTORY_FILE"\
     -i "$INVENTORY_DIR"\
-    cluster.yml\
+    ${PLAYBOOK}\
         --flush-cache\
         -b \
         "$@"
-

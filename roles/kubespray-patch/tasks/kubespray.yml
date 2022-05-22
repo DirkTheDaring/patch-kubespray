@@ -42,12 +42,19 @@
     state: link
   loop: "{{ configurations }}"
 
-- name: Create a symbolic link
+- name: Create a symbolic link for configuration reset
   ansible.builtin.file:
     src:  "./bin/reset.sh"
     dest: "{{ kubespray_git_folder }}/{{ item }}"
     state: link
   loop: "{{ reset_configurations }}"
+
+- name: Create a symbolic link for configuration upgrade
+  ansible.builtin.file:
+    src:  "./bin/kubespray.sh"
+    dest: "{{ kubespray_git_folder }}/{{ item }}"
+    state: link
+  loop: "{{ upgrade_configurations }}"
 
 - name: Create a symbolic link for external inventories
   ansible.builtin.file:
@@ -63,7 +70,7 @@
       - git
       - add
       - "{{ item }}"
-  loop: "{{ configurations + reset_configurations }}"
+  loop: "{{ configurations + upgrade_configurations + reset_configurations }}"
 
 #- name: Add patch to git for external_inventory_configurations
 #  ansible.builtin.command:
