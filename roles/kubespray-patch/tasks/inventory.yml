@@ -155,3 +155,28 @@
       regexp : "^# see roles/network_plugin/cilium/defaults/main.yml.*$"
       replace: "{{ cilium }}"
   when: cilium is defined
+
+- name: Patch containerd - add registries
+  replace:
+      path   : "{{ dest_folder }}/group_vars/all/containerd.yml"
+      regexp : "^# containerd_registries:.*$"
+      replace: |-
+        containerd_registries:
+        {% for item in containerd_registries %}
+          "{{ item }}": "{{ containerd_registries[item] }}"
+        {% endfor %}
+  when: containerd_registries is defined and containerd_registries|length > 0
+
+- name: Patch containerd - add authentication
+  replace:
+      path   : "{{ dest_folder }}/group_vars/all/containerd.yml"
+      regexp : "^# containerd_registry_auth:.*$"
+      replace: |-
+        containerd_registry_auth:
+        {% for item in containerd_registry_auth %}
+          - registry: {{ item.registry }}
+            username: {{ item.username }}
+            password: {{ item.password }}
+        {% endfor %}
+  when: containerd_registry_auth is defined and containerd_registry_auth|length > 0
+
