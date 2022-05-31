@@ -20,7 +20,7 @@
       - git
       - add
       - "{{ item }}"
-  loop: 
+  loop:
   - bin/kubespray.sh
   - bin/reset.sh
 
@@ -29,8 +29,8 @@
     chdir: "{{ kubespray_git_folder }}"
     argv:
       - git
-      - commit 
-      - -m 
+      - commit
+      - -m
       - |-
         kubespray.sh which going to be symlinked
         usually not called directly but with a symlink
@@ -86,8 +86,8 @@
     chdir: "{{ kubespray_git_folder }}"
     argv:
       - git
-      - commit 
-      - -m 
+      - commit
+      - -m
       - |-
         All symlinks specific to this setup
 
@@ -105,7 +105,7 @@
       - git
       - add
       - "{{ item }}"
-  loop: 
+  loop:
   - roles/container-engine/cri-o/templates/crio.conf.j2
 
 - name: Commit patch
@@ -113,8 +113,8 @@
     chdir: "{{ kubespray_git_folder }}"
     argv:
       - git
-      - commit 
-      - -m 
+      - commit
+      - -m
       - |-
         enable availability of /etc/containers/oci/hooks.d in crio.conf for the nvidia gpu-operator
 
@@ -132,7 +132,7 @@
     insertafter: "--runtime-cgroups={% raw %}{{ kubelet_runtime_cgroups }}{% endraw %} \\\\"
     line:        "--kubelet-cgroups={% raw %}{{ kubelet_runtime_cgroups }}{% endraw %} \\"
 
-- name: Add them to git 
+- name: Add them to git
   ansible.builtin.command:
     chdir: "{{ kubespray_git_folder }}"
     argv:
@@ -147,8 +147,8 @@
     chdir: "{{ kubespray_git_folder }}"
     argv:
       - git
-      - commit 
-      - -m 
+      - commit
+      - -m
       - |-
         avoid a lot of error messages because of cadvisor failure in kubelet
 
@@ -161,14 +161,14 @@
     insertafter: "    - { role: kubernetes-apps/cluster_roles, tags: cluster-roles }"
     line:        "    - { role: kubernetes-apps/helm, tags: helm }"
 
-- name: Add them to git 
+- name: Add them to git
   ansible.builtin.command:
     chdir: "{{ kubespray_git_folder }}"
     argv:
       - git
       - add
       - "{{ item }}"
-  loop: 
+  loop:
   - cluster.yml
 
 - name: Commit patch
@@ -176,8 +176,8 @@
     chdir: "{{ kubespray_git_folder }}"
     argv:
       - git
-      - commit 
-      - -m 
+      - commit
+      - -m
       - |-
         make helm binary available before we go to network_plugin install
 
@@ -194,7 +194,7 @@
     mode: 0644
   loop: "{{ file_list }}"
 
-- name: Add them to git 
+- name: Add them to git
   ansible.builtin.command:
     chdir: "{{ kubespray_git_folder }}"
     argv:
@@ -208,8 +208,49 @@
     chdir: "{{ kubespray_git_folder }}"
     argv:
       - git
-      - commit 
-      - -m 
+      - commit
+      - -m
       - |-
         deploy cilium as helm chart
+
+# diff --git a/roles/container-engine/cri-o/tasks/crio_repo.yml b/roles/container-engine/cri-o/tasks/crio_repo.yml
+# index f2b1b71a..08bcce17 100644
+# --- a/roles/container-engine/cri-o/tasks/crio_repo.yml
+# +++ b/roles/container-engine/cri-o/tasks/crio_repo.yml
+# @@ -149,7 +149,7 @@
+#        section: "fedora-modular"
+#
+#  - name: Enable CRI-O ex module
+# -  command: "rpm-ostree ex module enable cri-o:{{ crio_version }}"
+# +  command: "echo rpm-ostree ex module enable cri-o:{{ crio_version }}"
+#    become: true
+#    when:
+#      - is_ostree
+
+- name: Patch kubespray to not enable rpm-ostree module as this is already done
+  replace:
+      path   : "{{ kubespray_git_folder }}/roles/container-engine/cri-o/tasks/crio_repo.yml"
+      regexp : "^  command: \"rpm-ostree ex module enable"
+      replace: "  command: \"echo rpm-ostree ex module enable"
+
+- name: Add them to git
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - add
+      - "{{ item }}"
+  loop:
+  - roles/container-engine/cri-o/tasks/crio_repo.yml
+
+- name: Commit patch
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - commit
+      - -m
+      - |-
+        skip crio module enabling, as this was done elsewhere already
+
 
