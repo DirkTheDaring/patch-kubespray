@@ -7,12 +7,13 @@
     owner: root
     group: root
 
+  # Seems like we can only put one DNS Server here
 - name: Cilium | Create Fallback DNS
   copy:
     dest: "/etc/systemd/resolved.conf.d/dns_servers.conf"
     content: |-
       [Resolve]
-      DNS={{ upstream_dns_servers | join(',') }}
+      DNS={{ upstream_dns_servers[0] }}
       Domains=~.
   register: copy_result
 
