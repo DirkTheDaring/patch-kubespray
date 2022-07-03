@@ -5,4 +5,5 @@ reset_configurations: []
 
 kubespray_git_repository: https://github.com/kubernetes-sigs/kubespray
 kubespray_git_version:    14acd124bc0c326b4149c767c26ea0311d725074
+kubespray_git_version:    a5d7178bf8c03117ce07158ec251a5ed9558cad0
 kubespray_git_folder:     "{{ playbook_dir }}/target"
