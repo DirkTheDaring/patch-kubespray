@@ -254,3 +254,32 @@
         skip crio module enabling, as this was done elsewhere already
 
 
+- name: Patch kubespray crio to not apply patches to storage.conf
+  replace:
+      path   : "{{ kubespray_git_folder }}/roles/container-engine/cri-o/tasks/main.yaml"
+      regexp : "^    dest: /etc/containers/storage.conf"
+      replace: "    dest: /etc/containers/storage.conf.kubespray.offline"
+
+
+- name: Add them to git
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - add
+      - "{{ item }}"
+  loop:
+  - roles/container-engine/cri-o/tasks/main.yaml
+
+- name: Commit patch
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - commit
+      - -m
+      - |-
+        disable patching of storage.conf as this prevents cri-o:1.24/default from starting
+
+
+
