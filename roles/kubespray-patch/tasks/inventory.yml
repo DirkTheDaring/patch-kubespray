@@ -149,11 +149,17 @@
       replace: "kube_oidc_groups_prefix: \"{{ kube_oidc_groups_prefix }}\""
   when: kube_oidc_groups_prefix is defined
 
-- name: Patch cilium
-  replace:
-      path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-net-cilium.yml"
-      regexp : "^# see roles/network_plugin/cilium/defaults/main.yml.*$"
-      replace: "{{ cilium }}"
+#- name: Patch cilium
+#  replace:
+#      path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-net-cilium.yml"
+#      regexp : "^# see roles/network_plugin/cilium/defaults/main.yml.*$"
+#      replace: "{{ cilium }}"
+#  when: cilium is defined
+
+- name: Append Cilium config
+  lineinfile:
+    path: "{{ dest_folder }}/group_vars/k8s_cluster/k8s-net-cilium.yml"
+    line: "{{ cilium }}"
   when: cilium is defined
 
 - name: Patch containerd - add registries

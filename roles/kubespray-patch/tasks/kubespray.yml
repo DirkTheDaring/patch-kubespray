@@ -281,5 +281,31 @@
       - |-
         disable patching of storage.conf as this prevents cri-o:1.24/default from starting
 
+- name: Apply patch for supporting etcd as container
+  ansible.posix.patch:
+    src:  etcd.patch
+    basedir: "{{ kubespray_git_folder }}"
+    strip: 1
 
+- name: Add them to git
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - add
+      - "{{ item }}"
+  loop:
+  - roles/download/defaults/main.yml
+  - roles/kubernetes/preinstall/tasks/0010-swapoff.yml
+  - roles/kubernetes/preinstall/tasks/0080-system-configurations.yml
 
+- name: Commit patch
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - commit
+      - -m
+      - |-
+        Enable for the etcd to not run in a virtual machine, but run in a lxc container
+        as it is provided by promox
