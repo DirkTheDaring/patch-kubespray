@@ -46,6 +46,7 @@ ansible-playbook\
     $OPTION_ALL_FILE\
     -i "$INVENTORY_FILE"\
     -i "$INVENTORY_DIR"\
+    -e "credentials_dir=inventory/clusters/${CONFIG_NAME}/${CONFIG_STAGE}/credentials"\
     ${PLAYBOOK}\
         --flush-cache\
         -b \
