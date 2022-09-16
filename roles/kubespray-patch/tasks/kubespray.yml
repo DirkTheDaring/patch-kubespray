@@ -126,6 +126,35 @@
 #  --runtime-cgroups={{ kubelet_runtime_cgroups }} \
 # +--kubelet-cgroups={{ kubelet_runtime_cgroups }} \
 
+# Patch /var/run/crio (<=1.24 crio bug)
+# https://github.com/ocf/puppet/commit/c436362078f997a86f1c494903f74bf78b2ccdf2
+- name: Patch patch path /var/run/crio to /run/crio
+  ansible.builtin.replace:
+    path: "{{ kubespray_git_folder }}/roles/kubespray-defaults/defaults/main.yaml"
+    regexp:  "/var/run/crio/"
+    replace: "/run/crio/"
+
+- name: Add patch to git
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - add
+      - "{{ item }}"
+  loop:
+  - roles/kubespray-defaults/defaults/main.yaml
+
+- name: Commit patch
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - commit
+      - -m
+      - |-
+        Patch /var/run/crio to /run/crio for crio <= 1.24 due the following bug
+        https://github.com/ocf/puppet/commit/c436362078f997a86f1c494903f74bf78b2ccdf2
+
 - name: Patch kubelet.env to remove cadvisor failure reporting in logs
   lineinfile:
     dest:        "{{ kubespray_git_folder }}/roles/kubernetes/node/templates/kubelet.env.v1beta1.j2"
