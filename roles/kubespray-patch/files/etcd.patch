@@ -1,8 +1,8 @@
 diff --git a/roles/download/defaults/main.yml b/roles/download/defaults/main.yml
-index 8c6fcb00..5783679e 100644
+index a37b489d..1b59bc2c 100644
 --- a/roles/download/defaults/main.yml
 +++ b/roles/download/defaults/main.yml
-@@ -1033,6 +1033,8 @@ downloads:
+@@ -1082,6 +1082,8 @@ downloads:
        else etcd_digest_checksum|d(None) }}
      url: "{{ etcd_download_url }}"
      unarchive: "{{ etcd_deployment_type == 'host' }}"
