@@ -24,10 +24,9 @@ index 4ea91d83..3f14b03b 100644
  
  - name: Disable swapOnZram for Fedora
 diff --git a/roles/kubernetes/preinstall/tasks/0080-system-configurations.yml b/roles/kubernetes/preinstall/tasks/0080-system-configurations.yml
-index 720e7337..d82c94c3 100644
 --- a/roles/kubernetes/preinstall/tasks/0080-system-configurations.yml
 +++ b/roles/kubernetes/preinstall/tasks/0080-system-configurations.yml
-@@ -119,11 +119,15 @@
+@@ -119,14 +119,18 @@
      - { name: kernel.panic_on_oops, value: 1 }
      - { name: vm.overcommit_memory, value: 1 }
      - { name: vm.panic_on_oom, value: 0 }
@@ -45,3 +44,6 @@ index 720e7337..d82c94c3 100644
 +  when:
 +  - enable_nodelocaldns
 +  - not (inventory_hostname in groups['etcd'] and etcd_in_lxc_container is defined and etcd_in_lxc_container)
+ 
+ - name: Set additional sysctl variables
+   sysctl:
