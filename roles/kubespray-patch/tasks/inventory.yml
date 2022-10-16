@@ -2,19 +2,18 @@
   replace:
     path   : "{{ dest_folder }}/group_vars/all/all.yml"
     regexp : "^## apiserver_loadbalancer_domain_name:.*$"
-    replace: "apiserver_loadbalancer_domain_name: \"{{ apiserver_loadbalancer_domain_name }}\""
+    replace: "apiserver_loadbalancer_domain_name: {% raw %}\"{{ kubespray_apiserver_loadbalancer_domain_name|default('') }}\"{%endraw%}"
   when:
   - apiserver_loadbalancer_domain_name is defined
-  - kube_lodabalancer_apiserver_enabled
 
-- name: Patch loadbalancer_apiserver
-  replace:
-    path   : "{{ dest_folder }}/group_vars/all/all.yml"
-    regexp : "^# loadbalancer_apiserver:.*$"
-    replace: "{{ loadbalancer_apiserver }}"
-  when:
-  - loadbalancer_apiserver is defined
-  - kube_lodabalancer_apiserver_enabled
+#- name: Patch loadbalancer_apiserver
+#  replace:
+#    path   : "{{ dest_folder }}/group_vars/all/all.yml"
+#    regexp : "^# loadbalancer_apiserver:.*$"
+#    replace: "{{ loadbalancer_apiserver }}"
+#  when:
+#  - loadbalancer_apiserver is defined
+#  - kube_lodabalancer_apiserver_enabled
 
 - name: Patch upstream dns_servers
   replace:
@@ -71,6 +70,13 @@
       path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
       regexp : "^kube_network_plugin:[ |\t]+.*$"
       replace: "kube_network_plugin: \"{{ kube_network_plugin }}\""
+
+- name: Patch kube_version
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+      regexp : "^kube_version:[ |\t]+.*$"
+      replace: "kube_version: \"{{ kube_version }}\""
+  when: kube_version is defined 
 
 - name: Patch kube_service_addresses
   replace:

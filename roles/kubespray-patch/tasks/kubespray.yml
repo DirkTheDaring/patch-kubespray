@@ -97,6 +97,7 @@
       path   : "{{ kubespray_git_folder }}/roles/container-engine/cri-o/templates/crio.conf.j2"
       regexp : "^[ |\t]+\"/usr/share/containers/oci/hooks.d\",$"
       replace: "        \"/etc/containers/oci/hooks.d\", \"/usr/share/containers/oci/hooks.d\","
+  when: crio_enabled
 
 - name: Add patch to git
   ansible.builtin.command:
@@ -107,6 +108,7 @@
       - "{{ item }}"
   loop:
   - roles/container-engine/cri-o/templates/crio.conf.j2
+  when: crio_enabled
 
 - name: Commit patch
   ansible.builtin.command:
@@ -117,6 +119,7 @@
       - -m
       - |-
         enable availability of /etc/containers/oci/hooks.d in crio.conf for the nvidia gpu-operator
+  when: crio_enabled
 
 # --- a/roles/kubernetes/node/templates/kubelet.env.v1beta1.j2
 # +++ b/roles/kubernetes/node/templates/kubelet.env.v1beta1.j2
@@ -143,6 +146,7 @@
       - "{{ item }}"
   loop:
   - roles/kubespray-defaults/defaults/main.yaml
+  when: crio_enabled
 
 - name: Commit patch
   ansible.builtin.command:
@@ -154,6 +158,7 @@
       - |-
         Patch /var/run/crio to /run/crio for crio <= 1.24 due the following bug
         https://github.com/ocf/puppet/commit/c436362078f997a86f1c494903f74bf78b2ccdf2
+  when: crio_enabled
 
 - name: Patch kubelet.env to remove cadvisor failure reporting in logs
   lineinfile:
@@ -261,6 +266,7 @@
       path   : "{{ kubespray_git_folder }}/roles/container-engine/cri-o/tasks/crio_repo.yml"
       regexp : "^  command: \"rpm-ostree ex module enable"
       replace: "  command: \"echo rpm-ostree ex module enable"
+  when: crio_enabled
 
 - name: Add them to git
   ansible.builtin.command:
@@ -271,6 +277,7 @@
       - "{{ item }}"
   loop:
   - roles/container-engine/cri-o/tasks/crio_repo.yml
+  when: crio_enabled
 
 - name: Commit patch
   ansible.builtin.command:
@@ -281,6 +288,7 @@
       - -m
       - |-
         skip crio module enabling, as this was done elsewhere already
+  when: crio_enabled
 
 
 - name: Patch kubespray crio to not apply patches to storage.conf
@@ -288,6 +296,7 @@
       path   : "{{ kubespray_git_folder }}/roles/container-engine/cri-o/tasks/main.yaml"
       regexp : "^    dest: /etc/containers/storage.conf"
       replace: "    dest: /etc/containers/storage.conf.kubespray.offline"
+  when: crio_enabled
 
 
 - name: Add them to git
@@ -299,6 +308,7 @@
       - "{{ item }}"
   loop:
   - roles/container-engine/cri-o/tasks/main.yaml
+  when: crio_enabled
 
 - name: Commit patch
   ansible.builtin.command:
@@ -309,6 +319,7 @@
       - -m
       - |-
         disable patching of storage.conf as this prevents cri-o:1.24/default from starting
+  when: crio_enabled
 
 - name: Apply patch for supporting etcd as container
   ansible.posix.patch:
