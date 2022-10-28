@@ -9,9 +9,11 @@ kubespray_git_repository: https://github.com/kubernetes-sigs/kubespray
 #kubespray_git_version:     aca6be3adf11d13c3a97cdda73157ac94e4a830c
 #kubespray_git_version:     8585134db4ed8926cddec6419965585d9193a48f
 #kubespray_git_version:     e6976a54e151b43483c89a5054f87a60007f4485
-kubespray_git_version:     72b45eec2eb1ce3752e88bb4aba832d6d493f86e
+#kubespray_git_version:     72b45eec2eb1ce3752e88bb4aba832d6d493f86e
+kubespray_git_version:     9fdda7eca8b7b47a7cb980ec57cb8030ea3c7b3a
 kubespray_git_folder:     "{{ playbook_dir }}/target"
 
 kube_oidc_enabled: True
 kube_lodabalancer_apiserver_enabled: False
 crio_enabled: false
+crio_patch_enabled: false
