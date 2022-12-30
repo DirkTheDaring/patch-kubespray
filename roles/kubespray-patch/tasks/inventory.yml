@@ -179,12 +179,68 @@
 #      regexp : "^# see roles/network_plugin/cilium/defaults/main.yml.*$"
 #      replace: "{{ cilium }}"
 #  when: cilium is defined
+- name: prepare cilium patch
+  set_fact:
+    # ABSOLUTE HORRIBLE SOLUTION to prevent rendering of cilium_etcd_endpoints:
+    #    the raw prevents the inner line from rendering the first time, the "}}" solution prevents that is rendered second time
+    cilium: |-
+      cilium_version: "{{ cilium_version }}"
+      # cilium_identity_allocation_mode: kvstore # kvstore or crd
+      
+      # Optional features
+      cilium_enable_prometheus: true
+      
+      # Hubble
+      ### Enable Hubble without install
+      cilium_enable_hubble: true
+      ### Enable Hubble Metrics
+      cilium_enable_hubble_metrics: true
+      ### if cilium_enable_hubble_metrics: true
+      cilium_hubble_metrics:
+       - dns
+       - drop
+       - tcp
+       - flow
+       - icmp
+       - http
+      
+      ### Enable Hubble install
+      cilium_hubble_install: true
+      ### Enable auto generate certs if cilium_hubble_install: true
+      cilium_hubble_tls_generate: true
+      
+      # FIXME hardcoded in roles/network_plugin/cilium/templates/cilium-config.yml.j2
+      # bpf-ct-global-any-max      262144
+      # bpf-ct-global-tcp-max      524288
+      
+      cilium_preallocate_bpf_maps: true
+      
+      ## https://github.com/cilium/cilium/issues/9117
+      bpf-policy-map-max: "65536"
+      cilium_clean_state: false
+      cilium_clean_bpf_state: false
+      cilium_config_extra_vars: {}
+      cilium_hubble_enabled: true
+      cilium_hubble_relay_enabled: true # default false
+      cilium_hubble_ui_enabled: true # default false
+      cilium_hubble_metrics_enabled: "{dns,drop,tcp,flow,port-distribution,icmp,http}"
+      cilium_bpf_masquerade: true  # default false
+      cilium_bpf_host_routing: false  # default true
+      cilium_bpf_tproxy: true
+      cilium_bpf_clock_probe: true # default false
+      cilium_etcd_enabled: true # default false
+      cilium_etcd_ssl: true # default false
+      cilium_etcd_endpoints: "{% raw %}{{ "{{" }}{% endraw %} etcd_access_addresses.split(',') {% raw %}{{ "}}" }}{% endraw %}"
+      cilium_labels: "k8s:k8s-app k8s:app k8s:name"
+      cilium_local_redirect_policy: false
+      cilium_prometheus_enabled:    true # default false
+  when: cilium is not defined 
 
 - name: Append Cilium config
   lineinfile:
     path: "{{ dest_folder }}/group_vars/k8s_cluster/k8s-net-cilium.yml"
     line: "{{ cilium }}"
-  when: cilium is defined
+      #when: cilium is defined
 
 - name: Patch containerd - add registries
   replace:

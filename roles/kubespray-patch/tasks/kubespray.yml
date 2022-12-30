@@ -136,7 +136,7 @@
     path: "{{ kubespray_git_folder }}/roles/kubespray-defaults/defaults/main.yaml"
     regexp:  "/var/run/crio/"
     replace: "/run/crio/"
-  #when: crio_patch_enabled
+  when: crio_enabled
 
 - name: Add patch to git
   ansible.builtin.command:
@@ -147,7 +147,7 @@
       - "{{ item }}"
   loop:
   - roles/kubespray-defaults/defaults/main.yaml
-  #when: crio_patch_enabled
+  when: crio_enabled
 
 - name: Commit patch
   ansible.builtin.command:
@@ -166,7 +166,7 @@
         with a 64G disk) to become NotReady due to disk pressure. 
         This commit works around the above issue by subverting the string check 
         using the fact that `/run` is symlinked to `/var/run`.
-  #when: crio_patch_enabled
+  when: crio_enabled
 
 
 - name: Patch kubelet.env to remove cadvisor failure reporting in logs
@@ -270,65 +270,7 @@
 #    when:
 #      - is_ostree
 
-- name: Patch kubespray to not enable rpm-ostree module as this is already done
-  replace:
-      path   : "{{ kubespray_git_folder }}/roles/container-engine/cri-o/tasks/crio_repo.yml"
-      regexp : "^  command: \"rpm-ostree ex module enable"
-      replace: "  command: \"echo rpm-ostree ex module enable"
-  when: crio_patch_enabled
 
-- name: Add them to git
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - add
-      - "{{ item }}"
-  loop:
-  - roles/container-engine/cri-o/tasks/crio_repo.yml
-  when: crio_patch_enabled
-
-- name: Commit patch
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - commit
-      - -m
-      - |-
-        skip crio module enabling, as this was done elsewhere already
-  when: crio_patch_enabled
-
-
-- name: Patch kubespray crio to not apply patches to storage.conf
-  replace:
-      path   : "{{ kubespray_git_folder }}/roles/container-engine/cri-o/tasks/main.yaml"
-      regexp : "^    dest: /etc/containers/storage.conf"
-      replace: "    dest: /etc/containers/storage.conf.kubespray.offline"
-  when: crio_patch_enabled
-
-
-- name: Add them to git
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - add
-      - "{{ item }}"
-  loop:
-  - roles/container-engine/cri-o/tasks/main.yaml
-  when: crio_patch_enabled
-
-- name: Commit patch
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - commit
-      - -m
-      - |-
-        disable patching of storage.conf as this prevents cri-o:1.24/default from starting
-  when: crio_patch_enabled
 
 - name: Apply patch for supporting etcd as container
   ansible.posix.patch:
