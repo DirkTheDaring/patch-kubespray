@@ -136,6 +136,7 @@
     path: "{{ kubespray_git_folder }}/roles/kubespray-defaults/defaults/main.yaml"
     regexp:  "/var/run/crio/"
     replace: "/run/crio/"
+  #when: crio_patch_enabled
 
 - name: Add patch to git
   ansible.builtin.command:
@@ -146,7 +147,7 @@
       - "{{ item }}"
   loop:
   - roles/kubespray-defaults/defaults/main.yaml
-  when: crio_patch_enabled
+  #when: crio_patch_enabled
 
 - name: Commit patch
   ansible.builtin.command:
@@ -158,7 +159,15 @@
       - |-
         Patch /var/run/crio to /run/crio for crio <= 1.24 due the following bug
         https://github.com/ocf/puppet/commit/c436362078f997a86f1c494903f74bf78b2ccdf2
-  when: crio_patch_enabled
+        the CRI-O team found performance issues in the CRI stats provider, so there's
+        a hack in kubelet which falls back to cadvisor when crio is being used.
+        This is currently broken and causing a bunch of spam in our logs that looks 
+        like  "Unable to fetch pod log stats" -- leading to some nodes (like jaws, 
+        with a 64G disk) to become NotReady due to disk pressure. 
+        This commit works around the above issue by subverting the string check 
+        using the fact that `/run` is symlinked to `/var/run`.
+  #when: crio_patch_enabled
+
 
 - name: Patch kubelet.env to remove cadvisor failure reporting in logs
   lineinfile:
@@ -348,4 +357,32 @@
       - -m
       - |-
         Enable for the etcd to not run in a virtual machine, but run in a lxc container
-        as it is provided by promox
+        as it is provided by proxmox
+
+- name: Apply patch for support of the new ansible version in fedora 37 
+  ansible.posix.patch:
+    src:  fedora-37-ansible.patch
+    basedir: "{{ kubespray_git_folder }}"
+    strip: 1
+
+- name: Add them to git
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - add
+      - "{{ item }}"
+  loop:
+  - ansible_version.yml
+  - roles/etcd/tasks/gen_nodes_certs_script.yml
+
+- name: Commit patch
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - commit
+      - -m
+      - |-
+        Support new ansible in fedora 37
+
