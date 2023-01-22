@@ -1,3 +1,17 @@
+- name: Patch local_path_provisioner_enabled
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/addons.yml"
+      regexp : "^local_path_provisioner_enabled:[ |\t]+.*$"
+      replace: "local_path_provisioner_enabled: {{ local_path_provisioner_enabled }}"
+  when: local_path_provisioner_enabled is defined and local_path_provisioner_enabled
+
+- name: Patch local_path_provisioner_claim_root
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/addons.yml"
+      regexp : "^#[ |\t]+local_path_provisioner_claim_root:[ |\t]+.*$"
+      replace: "local_path_provisioner_claim_root: {{ local_path_provisioner_claim_root }}"
+  when: local_path_provisioner_enabled is defined and local_path_provisioner_enabled
+
 - name: Patch apiserver_loadbalancer_domain_name
   replace:
     path   : "{{ dest_folder }}/group_vars/all/all.yml"
@@ -50,14 +64,6 @@
       path   : "{{ dest_folder }}/group_vars/k8s_cluster/addons.yml"
       regexp : "^metrics_server_enabled:[ |\t]+.*$"
       replace: "metrics_server_enabled: \"{{ metrics_server_enabled }}\""
-
-
-- name: Patch local_path_provisioner_enabled
-  replace:
-      path   : "{{ dest_folder }}/group_vars/k8s_cluster/addons.yml"
-      regexp : "^local_path_provisioner_enabled:[ |\t]+.*$"
-      replace: "local_path_provisioner_enabled: {{ local_path_provisioner_enabled }}"
-  when: local_path_provisioner_enabled is defined and local_path_provisioner_enabled
 
 - name: Patch local_volume_provisioner_enabled
   replace:
@@ -174,6 +180,23 @@
   - kube_oidc_groups_prefix is defined
   - kube_oidc_enabled
 
+- name: Patch cluster_name (usually to remove the dot, as this is not accepted by cilium)
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+      regexp : "^cluster_name:.*$"
+      replace: "cluster_name: {{ cluster_name | default('cluster.local') }}"
+  when:
+  - cluster_name is defined and cluster_name|length > 0 
+
+- name: Patch dns_domain to keep cluster.local local 
+  replace:
+      path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+      regexp : "^dns_domain:.*$"
+      replace: "dns_domain: {{ dns_domain | default('cluster.local') }}"
+  when:
+  - cluster_name is defined and cluster_name|length > 0 
+
+
 #- name: Patch cilium
 #  replace:
 #      path   : "{{ dest_folder }}/group_vars/k8s_cluster/k8s-net-cilium.yml"
@@ -235,6 +258,7 @@
       cilium_labels: "k8s:k8s-app k8s:app k8s:name"
       cilium_local_redirect_policy: false
       cilium_prometheus_enabled:    true # default false
+      cilium_ingresscontroller_enabled: true # default false
   when: cilium is not defined 
 
 - name: Append Cilium config
@@ -266,4 +290,5 @@
             password: {{ item.password }}
         {% endfor %}
   when: containerd_registry_auth is defined and containerd_registry_auth|length > 0
+
 

@@ -15,6 +15,6 @@ CONFIGURATION_STAGE=${CONFIGURATION_STAGE="prod1"}
 CONFIGURATION_VARIANT=${CONFIGURATION_VARIANT="default"}
 
 INVENTORY=inventory/${CONFIGURATION_NAME}/${CONFIGURATION_STAGE}/${CONFIGURATION_VARIANT}
-ENVIRONMENT="-e configuration_name=${CONFIGURATION_NAME} -e configuration_stage=${CONFIGURATION_STAGE} -e configuration_variant=${CONFIGURATION_VARIANT}"
+ENVIRONMENT="-e configuration_name=${CONFIGURATION_NAME} -e configuration_stage=${CONFIGURATION_STAGE} -e configuration_variant=${CONFIGURATION_VARIANT} -e cluster_name=${CONFIGURATION_STAGE}"
 
 ansible-playbook playbook.yml ${ENVIRONMENT} -i "${INVENTORY}" $*
