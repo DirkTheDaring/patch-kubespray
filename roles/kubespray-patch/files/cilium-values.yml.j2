@@ -1848,3 +1848,6 @@ cgroup:
 # -- Configure whether to enable auto detect of terminating state for endpoints
 # in order to support graceful termination.
 enableK8sTerminatingEndpoint: true
+
+ingressController:
+  enabled: {{ cilium_ingresscontroller_enabled | default(false) }}
