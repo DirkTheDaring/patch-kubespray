@@ -270,11 +270,10 @@
 #    when:
 #      - is_ostree
 
-
-
 - name: Apply patch for supporting etcd as container
   ansible.posix.patch:
-    src:  etcd.patch
+    #src:  etcd.patch
+    src:  etcd-v2.patch
     basedir: "{{ kubespray_git_folder }}"
     strip: 1
 
@@ -327,4 +326,10 @@
       - -m
       - |-
         Support new ansible in fedora 37
+
+- name: Quirk somehow multus is called which is not intended
+  replace:
+      path   : "{{ kubespray_git_folder }}/roles/kubernetes-apps/network_plugin/multus/tasks/main.yml"
+      regexp : '^([^#])(.*)'
+      replace: '# \1\2'
 
