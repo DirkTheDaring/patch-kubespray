@@ -40,7 +40,7 @@
   when:
     - cilium_identity_allocation_mode == "kvstore"
 
-  # if you cahnge cert_dir cross_device no hardlinking is possible
+  # if you change cert_dir cross_device no hardlinking is possible
   # there changed to copy
 - name: Cilium | Link etcd certificates for cilium
   ansible.builtin.copy:

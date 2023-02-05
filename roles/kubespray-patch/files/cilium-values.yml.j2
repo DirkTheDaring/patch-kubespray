@@ -907,12 +907,13 @@ hubble:
 
     # -- hubble-ui ingress configuration.
     ingress:
-      enabled: false
-      annotations: {}
-        # kubernetes.io/ingress.class: nginx
-        # kubernetes.io/tls-acme: "true"
+      enabled: {{ cilium_hubble_ui_ingress_enabled }}
+      annotations:
+{% for key, value in cilium_hubble_ui_ingress_annotations.items() %}
+        {{ key }}: "{{ value }}"
+{% endfor %}
       hosts:
-        - chart-example.local
+        -  {{ cilium_hubble_ui_ingress_hosts }}
       tls: []
       #  - secretName: chart-example-tls
       #    hosts:
@@ -1656,7 +1657,7 @@ enableCriticalPriorityClass: true
 
 clustermesh:
   # -- Deploy clustermesh-apiserver for clustermesh
-  useAPIServer: false
+  useAPIServer: {{ cilium_clustermesh_useapiserver }}
 
   # -- Clustermesh explicit configuration.
   config:
