@@ -7,114 +7,125 @@
     cilium_helm_chart_version: "{{ cilium_version }}"
     cilium_chart_release_name: cilium
 
-- name: Render cilum-values yaml file as string
-  set_fact:
-    cilium_values_yaml: "{{ lookup('template', 'cilium-values.yml.j2') }}"
-
-- name: Convert cilium_values_yaml to dictionary
-  set_fact:
-    cilium_values: "{{ cilium_values_yaml | from_yaml }}"
-
-  # Create extra Mounts in the pods which point to the
-  # /etc/cilium/certs_dir
-  # After the deployment of the helm chart, the
-  # cilium-config is patched to match the etcd-config to these
-  # extra-mounts
-- name: If kvstore add path to etcd certificates to cilium_values
+- name: Cilium | Prepare helm chart
   block:
-  - name: Merge facts replace existing values
+  - name: set facts for helm patching
     set_fact:
-      exraHostPathMounts:
-      - name:      etcd-secrets-kubespray
-        mountPath: "{{ cilium_cert_dir }}"
-        hostPath:  "{{ cilium_cert_dir }}"
-        readOnly:  true
+      cilium_values_yaml: "{{ lookup('template', 'cilium-values.yml.j2') }}"
+      # It is not possible to provide the helm chart with an own etcd-config
+      # Therefore patch the the ConfigMap after deployment
 
-  - name: Set Facts to access kubespray etcd certs
+      cilium_configmap_patch:
+          data:
+            etcd-config: |-
+              endpoints:
+              {% for url in cilium_etcd_endpoints %}
+              - {{ url }}
+              {% endfor %}
+              ca-file:   {{ cilium_cert_dir }}/ca_cert.crt
+              key-file:  {{ cilium_cert_dir }}/key.pem
+              cert-file: {{ cilium_cert_dir }}/cert.crt
+
+  when: inventory_hostname == groups['kube_control_plane'][0]
+
+- block:
+  - name: Set cilium script dir
     set_fact:
-      patch0:
-        # Deactivated for now
-        #k8sServiceHost: "{{ kube_apiserver_ip }}"
-        #k8sServicePort: "{{ kube_apiserver_port }}"
-        ipam:
-          operator:
-            clusterPoolIPv4PodCIDR:  "{{ kube_pods_subnet }}"
-            clusterPoolIPv4MaskSize: "{{ kube_network_node_prefix }}"
-        etcd:
-          enabled: true
-          ssl: true
-            #endpoints: "{{ [ 'https://' ] | product(etcd_access_addresses.split(',')) | map('join') }}"
-          endpoints: "{{ cilium_etcd_endpoints }}"
-        extraHostPathMounts: "{{ exraHostPathMounts }}"
-        operator:
-          extraHostPathMounts: "{{ exraHostPathMounts }}"
+      #cilium_script_dir:  "{{ playbook_dir }}/cilium"
+      cilium_script_dir:  "/home/core/cilium"
 
-  - name: Merge facts append when they do not exists
+  - name: Create Directory
+    ansible.builtin.file:
+      path:  "{{ cilium_script_dir }}"
+      state: directory
+      mode: '0755'
+
+  - name: Write rendered content for value
+    copy:
+      content: "{{ cilium_values_yaml }}"
+      dest:    "{{ cilium_script_dir }}/values.yaml"
+
+  - name: Write json
+    copy:
+      content: "{{ cilium_configmap_patch | to_json }}"
+      dest:    "{{ cilium_script_dir }}/patch.json"
+
+  - name: Write yaml
+    copy:
+      content: "{{ cilium_configmap_patch | to_yaml }}"
+      dest:    "{{ cilium_script_dir }}/patch.yaml"
+
+  - name: Write shell script
+    ansible.builtin.copy:
+      content: |-
+        #!/usr/bin/env bash
+        helm upgrade --namespace kube-system --version {{ cilium_version }} cilium cilium/cilium -f values.yaml
+        # Remove
+        kubectl -n kube-system patch cm cilium-config  --type=json -p="[{'op':'remove','path':'/data/etcd-config'}]"
+        # Patch
+        kubectl -n kube-system patch cm cilium-config --patch-file patch.json
+        # Delete pods
+        kubectl -n kube-system delete pods -l k8s-app=cilium
+        #
+      dest: "{{ cilium_script_dir }}/upgrade.sh"
+      mode: "0755"
+  when: inventory_hostname == groups['kube_control_plane'][0]
+
+- block:
+  - name: Convert cilium_values_yaml to dictionary
     set_fact:
-      cilium_values: "{{ cilium_values | combine(patch0,recursive=True) }}"
-  when:
-    - cilium_identity_allocation_mode == "kvstore"
-    - inventory_hostname == groups['kube_control_plane'][0]
+      cilium_values: "{{ cilium_values_yaml | from_yaml }}"
 
-- name: Add Chart repo
-  kubernetes.core.helm_repository:
-    name:     "{{ cilium_helm_repo_name }}"
-    repo_url: "{{ cilium_helm_repo_url }}"
+  - name: Add Chart repo
+    kubernetes.core.helm_repository:
+      name:     "{{ cilium_helm_repo_name }}"
+      repo_url: "{{ cilium_helm_repo_url }}"
+
+  - name: Deploy helm chart
+    kubernetes.core.helm:
+      chart_ref:         "{{ cilium_helm_repo_name }}/{{ cilium_helm_chart_name }}"
+      chart_version:     "{{ cilium_helm_chart_version }}"
+      release_namespace: "kube-system"
+      release_name:      "{{ cilium_chart_release_name }}"
+      values:            "{{ cilium_values }}"
+      update_repo_cache: yes
+
+#  - name: Cilium | Patch cilium-config
+#    kubernetes.core.k8s:
+#      state: present
+#      kind: ConfigMap
+#      name:      cilium-config
+#      namespace: kube-system
+#      definition:
+#        data:
+#          etcd-config: "{{ etcd_config }}"
+#    register: patch_result
+  - name: Cilium | Patch cilium-config
+    kubernetes.core.k8s:
+      state: present
+      kind: ConfigMap
+      name:      cilium-config
+      namespace: kube-system
+      definition: "{{ cilium_configmap_patch }}"
+    register: patch_result
+
+  - name: Cilium | Reset pods
+    command: "{{ kubectl }} -n kube-system delete pods -l k8s-app=cilium"
+    when:
+    - patch_result.changed
+
+  - name: Pause for 5 minutes to skip instable kube-api during that time
+    ansible.builtin.pause:
+      minutes: 5
+
+  - name: Cilium | Wait for pods to to be running
+    command: "{{ kubectl }} -n kube-system get pods -l k8s-app=cilium -o jsonpath='{.items[?(@.status.containerStatuses[0].ready==false)].metadata.name}'"  # noqa 601
+    #command:  "{{ kubectl }} -n kube-system get pods -l k8s-app=cilium -o jsonpath=\"{.items[?(@.status.phase=='Running')].metadata.name}\""
+    register: pods_not_ready
+    until:    pods_not_ready.stdout.find("cilium")==-1
+    #until:    pods_not_ready.stdout.find("cilium")==-1
+    retries: 30
+    delay: 10
+    failed_when: false
   when: inventory_hostname == groups['kube_control_plane'][0]
 
-- name: Deploy helm chart
-  kubernetes.core.helm:
-    chart_ref:         "{{ cilium_helm_repo_name }}/{{ cilium_helm_chart_name }}"
-    chart_version:     "{{ cilium_helm_chart_version }}"
-    release_namespace: "kube-system"
-    release_name:      "{{ cilium_chart_release_name }}"
-    values:            "{{ cilium_values }}"
-    update_repo_cache: yes
-  when: inventory_hostname == groups['kube_control_plane'][0]
-
-  # It is not possible to provide the helm chart with an own etcd-config
-  # Therefore patch the the ConfigMap after deployment
-- name: Cilium | Render Patch content
-  set_fact:
-    etcd_config: |-
-      endpoints:
-      {% for url in cilium_etcd_endpoints %}
-      - {{ url }}
-      {% endfor %}
-      ca-file:   {{ cilium_cert_dir }}/ca_cert.crt
-      key-file:  {{ cilium_cert_dir }}/key.pem
-      cert-file: {{ cilium_cert_dir }}/cert.crt
-  when: inventory_hostname == groups['kube_control_plane'][0]
-
-- name: Cilium | Patch cilium-config
-  kubernetes.core.k8s:
-    state: present
-    kind: ConfigMap
-    name:      cilium-config
-    namespace: kube-system
-    definition:
-      data:
-        etcd-config: "{{ etcd_config }}"
-  register: patch_result
-  when: inventory_hostname == groups['kube_control_plane'][0]
-
-- name: Cilium | Reset pods
-  command: "{{ kubectl }} -n kube-system delete pods -l k8s-app=cilium"
-  when:
-  - inventory_hostname == groups['kube_control_plane'][0]
-  - patch_result.changed
-
-- name: Pause for 5 minutes to skip instable kube-api during that time
-  ansible.builtin.pause:
-    minutes: 5
-
-- name: Cilium | Wait for pods to to be running
-  command: "{{ kubectl }} -n kube-system get pods -l k8s-app=cilium -o jsonpath='{.items[?(@.status.containerStatuses[0].ready==false)].metadata.name}'"  # noqa 601
-  #command:  "{{ kubectl }} -n kube-system get pods -l k8s-app=cilium -o jsonpath=\"{.items[?(@.status.phase=='Running')].metadata.name}\""
-  register: pods_not_ready
-  until:    pods_not_ready.stdout.find("cilium")==-1
-  #until:    pods_not_ready.stdout.find("cilium")==-1
-  retries: 30
-  delay: 10
-  failed_when: false
-  when: inventory_hostname == groups['kube_control_plane'][0]

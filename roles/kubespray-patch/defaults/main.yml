@@ -23,3 +23,5 @@ cilium_hubble_ui_ingress_annotations: {}
 cilium_hubble_ui_ingress_hosts:   hubble.local
 
 cilium_clustermesh_useapiserver: false
+cilium_cluster_name: "default"
+cilium_cluster_id: "0"

@@ -279,6 +279,8 @@
       # Mesh
       #
       cilium_clustermesh_useapiserver:  {{ cilium_clustermesh_useapiserver | default(false) }}
+      cilium_cluster_name: {{ cilium_cluster_name }}
+      cilium_cluster_id: {{ cilium_cluster_id }}
 
   when: cilium is not defined 
 
