@@ -197,7 +197,11 @@ podLabels: {}
 
 # -- Agent resource limits & requests
 # ref: https://kubernetes.io/docs/user-guide/compute-resources/
+{% if cilium_cpu_limit is defined or cilium_memory_limit is defined or cilium_cpu_requests is defined or cilium_memory_requests is defined  %}
+resources:
+{% else %}
 resources: {}
+{% endif %}
   # limits:
   #   cpu: 4000m
   #   memory: 4Gi
