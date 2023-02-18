@@ -254,7 +254,7 @@
       cilium_hubble_enabled: true
       cilium_hubble_relay_enabled: true # default false
       cilium_hubble_ui_enabled: true # default false
-      cilium_hubble_metrics_enabled: "{dns,drop,tcp,flow,port-distribution,icmp,http}"
+      cilium_hubble_metrics_enabled: [ dns,drop,tcp,flow,port-distribution,icmp,http ]
       cilium_bpf_masquerade: true  # default false
       cilium_bpf_host_routing: false  # default true
       cilium_bpf_tproxy: true
@@ -281,6 +281,8 @@
       cilium_clustermesh_useapiserver:  {{ cilium_clustermesh_useapiserver | default(false) }}
       cilium_cluster_name: {{ cilium_cluster_name }}
       cilium_cluster_id: {{ cilium_cluster_id }}
+      # 
+      cilium_kube_proxy_replacement: {{ cilium_kube_proxy_replacement | default('partial') }}
 
   when: cilium is not defined 
 
