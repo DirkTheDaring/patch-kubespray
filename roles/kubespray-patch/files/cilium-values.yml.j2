@@ -1449,7 +1449,7 @@ readinessProbe:
 # -- Configure the kube-proxy replacement in Cilium BPF datapath
 # Valid options are "disabled", "partial", "strict".
 # ref: https://docs.cilium.io/en/stable/gettingstarted/kubeproxy-free/
-{% if kubeProxyReplacement is not defined %}
+{% if cilium_kube_proxy_replacement is not defined %}
 #kubeProxyReplacement: "disabled"
 {% else %}
 kubeProxyReplacement: "{{ cilium_kube_proxy_replacement }}"
