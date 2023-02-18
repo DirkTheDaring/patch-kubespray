@@ -59,6 +59,9 @@
     ansible.builtin.copy:
       content: |-
         #!/usr/bin/env bash
+        #
+        helm repo update
+        #
         helm upgrade --namespace kube-system --version {{ cilium_version }} cilium cilium/cilium -f values.yaml
         # Remove
         kubectl -n kube-system patch cm cilium-config  --type=json -p="[{'op':'remove','path':'/data/etcd-config'}]"

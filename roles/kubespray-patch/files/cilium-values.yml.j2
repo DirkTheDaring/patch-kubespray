@@ -1322,6 +1322,7 @@ hubble:
       enabled: {{ cilium_hubble_ui_ingress_enabled | lower }}
       annotations: {% if not cilium_hubble_ui_ingress_annotations %}{}
 {% else %}
+
 {% for key, value in cilium_hubble_ui_ingress_annotations.items() %}
         {{ key }}: "{{ value }}"
 {% endfor %}
