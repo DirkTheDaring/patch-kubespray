@@ -7,7 +7,8 @@ kubespray_git_repository: https://github.com/kubernetes-sigs/kubespray
 #kubespray_git_version:    744c81d451ab7d657f366567e85ff612dd0cbc3d
 #kubespray_git_version:  34d0451585eab0dc2c0ba99f02341fe2d25ca300
 #kubespray_git_version:  1853085ffe395916a6c57fc05b7508bc4dc7ac17
-kubespray_git_version:  145c80e9abd7e740733cb716ddc30ef122711cd1
+#kubespray_git_version:  145c80e9abd7e740733cb716ddc30ef122711cd1
+kubespray_git_version:  99115ad04b9da4c6c2e3352e72a175e00bc32678
 kubespray_git_folder:     "{{ playbook_dir }}/target"
 
 kubespray_git_folder:     "{{ playbook_dir }}/target"
@@ -28,3 +29,9 @@ cilium_hubble_ui_ingress_hosts:   hubble.local
 cilium_clustermesh_useapiserver: false
 cilium_cluster_name: "default"
 cilium_cluster_id: "0"
+
+#
+cilium_bpf_map_dynamic_size_ratio: "~"
+cilium_enable_host_legacy_routing: "~"
+cilium_ipv4_native_routing_cidr:   ""
+cilium_ipv6_native_routing_cidr:   ""

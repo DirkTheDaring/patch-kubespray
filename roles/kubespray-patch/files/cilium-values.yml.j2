@@ -422,7 +422,7 @@ bpf:
   # -- (float64) Configure auto-sizing for all BPF maps based on available memory.
   # ref: https://docs.cilium.io/en/stable/concepts/ebpf/maps/#ebpf-maps
   # @default -- `0.0025`
-  mapDynamicSizeRatio: ~
+  mapDynamicSizeRatio: {{ cilium_bpf_map_dynamic_size_ratio | default("~") }}
 
   # -- Configure the level of aggregation for monitor notifications.
   # Valid options are none, low, medium, maximum.
@@ -448,7 +448,7 @@ bpf:
   # the kernel supports it. The latter has the implication that it will also
   # bypass netfilter in the host namespace.
   # @default -- `false`
-  hostLegacyRouting: ~
+  hostLegacyRouting: {{ cilium_enable_host_legacy_routing | default("~") }}
 
   # -- (bool) Configure the eBPF-based TPROXY to reduce reliance on iptables rules
   # for implementing Layer 7 policy.
@@ -1539,7 +1539,7 @@ vtep:
 # direct routing and the Kubernetes CIDR is included in the native routing CIDR,
 # the user must configure the routes to reach pods, either manually or by
 # setting the auto-direct-node-routes flag.
-ipv4NativeRoutingCIDR: ""
+ipv4NativeRoutingCIDR: "{{ cilium_ipv4_native_routing_cidr | default('') }}"
 
 # -- (string) Allows to explicitly specify the IPv6 CIDR for native routing.
 # When specified, Cilium assumes networking for this CIDR is preconfigured and
@@ -1551,7 +1551,7 @@ ipv4NativeRoutingCIDR: ""
 # direct routing and the Kubernetes CIDR is included in the native routing CIDR,
 # the user must configure the routes to reach pods, either manually or by
 # setting the auto-direct-node-routes flag.
-ipv6NativeRoutingCIDR: ""
+ipv6NativeRoutingCIDR: "{{ cilium_ipv6_native_routing_cidr | default('') }}"
 
 # -- cilium-monitor sidecar.
 monitor:
