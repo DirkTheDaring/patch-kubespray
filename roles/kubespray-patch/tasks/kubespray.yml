@@ -335,7 +335,7 @@
 
 - name: Apply patch for race condition
   ansible.posix.patch:
-    src:  kubeadm-setup.yml
+    src: kubeadm-setup-race-condition.patch
     basedir: "{{ kubespray_git_folder }}"
     strip: 1
 
