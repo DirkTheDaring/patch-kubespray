@@ -333,3 +333,28 @@
       regexp : '^([^#])(.*)'
       replace: '# \1\2'
 
+- name: Apply patch for race condition
+  ansible.posix.patch:
+    src:  kubeadm-setup.yml
+    basedir: "{{ kubespray_git_folder }}"
+    strip: 1
+
+- name: Add them to git
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - add
+      - "{{ item }}"
+  loop:
+  - roles/kubernetes/control-plane/tasks/kubeadm-setup.yml
+
+- name: Commit patch
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - commit
+      - -m
+      - |-
+        Fix race condition in kubeadm-setup.yml
