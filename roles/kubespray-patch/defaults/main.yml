@@ -8,16 +8,15 @@ kubespray_git_repository: https://github.com/kubernetes-sigs/kubespray
 #kubespray_git_version:  34d0451585eab0dc2c0ba99f02341fe2d25ca300
 #kubespray_git_version:  1853085ffe395916a6c57fc05b7508bc4dc7ac17
 #kubespray_git_version:  145c80e9abd7e740733cb716ddc30ef122711cd1
-kubespray_git_version:  99115ad04b9da4c6c2e3352e72a175e00bc32678
-kubespray_git_folder:     "{{ playbook_dir }}/target"
-
+#kubespray_git_version:  99115ad04b9da4c6c2e3352e72a175e00bc32678
+kubespray_git_version: 0c4f57a09366fc1da09a7e93c13afa84955d7e11
 kubespray_git_folder:     "{{ playbook_dir }}/target"
 
 kube_oidc_enabled: True
 kube_lodabalancer_apiserver_enabled: False
 crio_enabled: true
-cilium_version: "v1.13.0"
-kube_version: "v1.24.10"
+cilium_version: "v1.13.1"
+kube_version: "v1.26.3"
 
 local_path_provisioner_claim_root: /opt/local-path-provisioner/
 local_volume_provisioner_enabled: false
