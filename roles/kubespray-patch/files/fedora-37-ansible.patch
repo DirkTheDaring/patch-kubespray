@@ -1,7 +1,7 @@
 diff --git a/ansible_version.yml b/ansible_version.yml
 index 151131f8b..19f4d0745 100644
---- a/ansible_version.yml
-+++ b/ansible_version.yml
+--- a/playbooks/ansible_version.yml
++++ b/playbooks/ansible_version.yml
 @@ -4,7 +4,7 @@
    become: no
    vars:

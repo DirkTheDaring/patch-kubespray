@@ -314,7 +314,7 @@
       - add
       - "{{ item }}"
   loop:
-  - ansible_version.yml
+  - playbooks/ansible_version.yml
   - roles/etcd/tasks/gen_nodes_certs_script.yml
 
 - name: Commit patch
@@ -327,11 +327,33 @@
       - |-
         Support new ansible in fedora 37
 
+
 - name: Quirk somehow multus is called which is not intended
   replace:
       path   : "{{ kubespray_git_folder }}/roles/kubernetes-apps/network_plugin/multus/tasks/main.yml"
       regexp : '^([^#])(.*)'
       replace: '# \1\2'
+
+- name: Add them to git
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - add
+      - "{{ item }}"
+  loop:
+  - roles/kubernetes-apps/network_plugin/multus/tasks/main.yml 
+
+- name: Commit patch
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - commit
+      - -m
+      - |-
+        Workaround multus step, which happens to fail in my setup
+
 
 - name: Apply patch for race condition
   ansible.posix.patch:
