@@ -200,7 +200,7 @@
 
 - name: Patch cluster.yml for early helm availability
   lineinfile:
-    dest:        "{{ kubespray_git_folder }}/cluster.yml"
+    dest:        "{{ kubespray_git_folder }}/playbooks/cluster.yml"
     insertafter: "    - { role: kubernetes-apps/cluster_roles, tags: cluster-roles }"
     line:        "    - { role: kubernetes-apps/helm, tags: helm }"
 
@@ -212,7 +212,7 @@
       - add
       - "{{ item }}"
   loop:
-  - cluster.yml
+  - playbooks/cluster.yml
 
 - name: Commit patch
   ansible.builtin.command:
@@ -225,12 +225,25 @@
         make helm binary available before we go to network_plugin install
 
 - set_fact:
+    cilium_template_version: 1.13.0
+  when: cilium_version[1:] is version('1.13.1', '<')
+
+- set_fact:
+    cilium_template_version: 1.13.1
+  when: cilium_version[1:] is version('1.13.1', '>=')
+
+- name: Copy cilium template
+  ansible.builtin.copy:
+    src:  "cilium-values-{{ cilium_template_version }}.yml.j2"
+    dest: "{{ kubespray_git_folder }}/roles/network_plugin/cilium/templates/cilium-values.yml.j2"
+    mode: 0644
+
+- set_fact:
     file_list:
     - roles/network_plugin/cilium/tasks/apply.yml
     - roles/network_plugin/cilium/tasks/install.yml
-    - roles/network_plugin/cilium/templates/cilium-values.yml.j2
 
-- name: Patch files
+- name: Copy Files
   ansible.builtin.copy:
     src:  "{{ item | basename }}"
     dest: "{{ kubespray_git_folder }}/{{ item }}"
@@ -244,7 +257,7 @@
       - git
       - add
       - "{{ item }}"
-  loop: "{{ file_list + [ 'cluster.yml' ] }}"
+  loop: "{{ file_list + [ 'roles/network_plugin/cilium/templates/cilium-values.yml.j2' ] }}"
 
 - name: Commit patch
   ansible.builtin.command:

@@ -2,8 +2,6 @@
   replace:
     path   : "{{ kubespray_git_folder }}/inventory/sample/group_vars/all/all.yml"
     regexp : "^# loadbalancer_apiserver:.*$"
-#    replace: |-
-#      loadbalancer_apiserver: {% raw %}"{{ {}|combine({'address': kubespray_loadbalancer_apiserver_address|d(omit),'port': kubespray_loadbalancer_apiserver_port|d(omit)}) }}"{% endraw %}
     replace: |-
       {% raw %}
       loadbalancer_apiserver:
@@ -30,3 +28,4 @@
       - -m
       - |-
         allow loadbalancer_apiserver to be dynamically defined
+

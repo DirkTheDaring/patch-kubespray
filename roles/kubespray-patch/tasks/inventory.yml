@@ -210,7 +210,7 @@
 #      regexp : "^# see roles/network_plugin/cilium/defaults/main.yml.*$"
 #      replace: "{{ cilium }}"
 #  when: cilium is defined
-- name: prepare cilium patch
+- name: Prepare cilium patch
   set_fact:
     # ABSOLUTE HORRIBLE SOLUTION to prevent rendering of cilium_etcd_endpoints:
     #    the raw prevents the inner line from rendering the first time, the "}}" solution prevents that is rendered second time

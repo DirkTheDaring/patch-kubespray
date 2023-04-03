@@ -1,13 +1,13 @@
 configurations:
-- "kubespray-example.com-prod1-default.sh"
-- "kubespray-example.com-storage1-default.sh"
+ - "kubespray-example.com-prod1-default.sh"
+ - "kubespray-example.com-storage1-default.sh"
 reset_configurations:
-- "reset-example.com-prod1-default.sh"
-- "reset-example.com-storage1-default.sh"
+ - "reset-example.com-prod1-default.sh"
+ - "reset-example.com-storage1-default.sh"
 
 external_inventory_configurations:
-- src:  path/to/your/external/configuration
-  dest: clusters
+ - src: path/to/your/external/configuration
+   dest: clusters
 
 kubespray_git_repository: https://github.com/kubernetes-sigs/kubespray
 kubespray_git_version: a4f26dc8f3ca34cba93f577d88a2978c622b52f0
