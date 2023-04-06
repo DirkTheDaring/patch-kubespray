@@ -96,7 +96,7 @@
 - name: Patch kubespray for nvidia-operator support
   ansible.builtin.replace:
     path: "{{ kubespray_git_folder }}/roles/container-engine/cri-o/templates/crio.conf.j2"
-    regexp: "^[ ]+\"/usr/share/containers/oci/hooks.d\",$"
+    regexp: "^[ \t]+\"/usr/share/containers/oci/hooks.d\",$"
     replace: "        \"/etc/containers/oci/hooks.d\", \"/usr/share/containers/oci/hooks.d\","
   when: crio_enabled
 
@@ -346,8 +346,7 @@
 
 - name: Quirk somehow multus is called which is not intended
   ansible.builtin.replace:
-    path: |
-      {{ kubespray_git_folder }}/roles/kubernetes-apps/network_plugin/multus/tasks/main.yml
+    path: "{{ kubespray_git_folder }}/roles/kubernetes-apps/network_plugin/multus/tasks/main.yml"
     regexp: '^([^#])(.*)'
     replace: '# \1\2'
 

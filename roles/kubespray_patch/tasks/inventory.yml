@@ -255,7 +255,7 @@
 
       cilium_preallocate_bpf_maps: true
 
-      ## https: //github.com/cilium/cilium/issues/9117
+      ## https://github.com/cilium/cilium/issues/9117
       bpf-policy-map-max: "65536"
       cilium_clean_state: false
       cilium_clean_bpf_state: false
