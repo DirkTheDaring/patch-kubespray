@@ -1,5 +1,6 @@
 ---
-- hosts:
-  - localhost
+- name: Patch kubespray
+  hosts:
+    - localhost
   roles:
-  - kubespray-patch
+    - kubespray_patch
