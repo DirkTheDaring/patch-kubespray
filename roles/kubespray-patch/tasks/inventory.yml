@@ -12,6 +12,14 @@
       replace: "local_path_provisioner_claim_root: {{ local_path_provisioner_claim_root }}"
   when: local_path_provisioner_enabled is defined and local_path_provisioner_enabled
 
+- name: Add  local_path_provisioner_enabled line
+  lineinfile:
+    dest:        "{{ dest_folder }}/group_vars/k8s_cluster/addons.yml"
+    #regexp:      "^local_path_provisioner_enabled:.*$"
+    insertafter: "^local_path_provisioner_enabled:.*$"
+    line:        "local_path_provisioner_is_default_storageclass: {{ local_path_provisioner_is_default_storageclass | default('false') }}"
+  when: local_path_provisioner_enabled is defined and local_path_provisioner_enabled
+
 - name: Patch apiserver_loadbalancer_domain_name
   replace:
     path   : "{{ dest_folder }}/group_vars/all/all.yml"
