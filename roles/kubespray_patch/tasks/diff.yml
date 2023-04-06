@@ -1,20 +1,23 @@
+---
 - name: Create diff
   ansible.builtin.command:
     chdir: "{{ kubespray_git_folder }}/inventory"
     argv:
-      - diff 
-      - -u 
+      - diff
+      - -u
       - --recursive
       - --new-file
       - --exclude=inventory.ini
       - sample
       - "{{ kubespray_patch_prefix }}-{{ version }}"
-  register:    diff
+  register: diff
   failed_when: "diff.rc != 0 and diff.rc != 1"
 
-#- debug:
-#    msg: "{{ diff.stdout }}"
+# - debug:
+#     msg: "{{ diff.stdout }}"
 
-- copy:
-    content: "{{ diff.stdout }}" 
+- name: Copy
+  ansible.builtin.copy:
+    content: "{{ diff.stdout }}"
     dest: "{{ kubespray_git_folder }}/inventory/{{ kubespray_patch_prefix }}-{{ version }}.patch"
+    mode: '0644'

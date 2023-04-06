@@ -1,7 +1,0 @@
-- import_tasks: git-checkout.yml
-- import_tasks: git-branch.yml
-- import_tasks: patch-sample-inventory.yml
-- import_tasks: copy-sample.yml
-- import_tasks: inventory.yml
-- import_tasks: diff.yml
-- import_tasks: kubespray.yml

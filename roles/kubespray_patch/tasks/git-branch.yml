@@ -1,12 +1,13 @@
-- name: "Create branch"
+---
+- name: Create branch
   ansible.builtin.command:
     chdir: "{{ kubespray_git_folder }}"
     argv:
       - git
-      - branch 
+      - branch
       - new-features
 
-- name: "Checkout branch"
+- name: Checkout branch
   ansible.builtin.command:
     chdir: "{{ kubespray_git_folder }}"
     argv:

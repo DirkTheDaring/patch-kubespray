@@ -1,3 +1,4 @@
+---
 - name: Create a directory if it does not exist
   ansible.builtin.file:
     path: "{{ kubespray_git_folder }}/bin"
@@ -6,12 +7,12 @@
 
 - name: Copy bin files
   ansible.builtin.copy:
-    src:  "{{ item }}"
+    src: "{{ item }}"
     dest: "{{ kubespray_git_folder }}/{{ item }}"
     mode: '0755'
   loop:
-  - bin/kubespray.sh
-  - bin/reset.sh
+    - bin/kubespray.sh
+    - bin/reset.sh
 
 - name: Add patch to git
   ansible.builtin.command:
@@ -21,8 +22,8 @@
       - add
       - "{{ item }}"
   loop:
-  - bin/kubespray.sh
-  - bin/reset.sh
+    - bin/kubespray.sh
+    - bin/reset.sh
 
 - name: Commit patch
   ansible.builtin.command:
@@ -37,28 +38,28 @@
 
 - name: Create a symbolic link
   ansible.builtin.file:
-    src:  "./bin/kubespray.sh"
+    src: "./bin/kubespray.sh"
     dest: "{{ kubespray_git_folder }}/{{ item }}"
     state: link
   loop: "{{ configurations }}"
 
 - name: Create a symbolic link for configuration reset
   ansible.builtin.file:
-    src:  "./bin/reset.sh"
+    src: "./bin/reset.sh"
     dest: "{{ kubespray_git_folder }}/{{ item }}"
     state: link
   loop: "{{ reset_configurations }}"
 
 - name: Create a symbolic link for configuration upgrade
   ansible.builtin.file:
-    src:  "./bin/kubespray.sh"
+    src: "./bin/kubespray.sh"
     dest: "{{ kubespray_git_folder }}/{{ item }}"
     state: link
   loop: "{{ upgrade_configurations }}"
 
 - name: Create a symbolic link for external inventories
   ansible.builtin.file:
-    src:  "{{ item.src }}"
+    src: "{{ item.src }}"
     dest: "{{ kubespray_git_folder }}/inventory/{{ item.dest }}"
     state: link
   loop: "{{ external_inventory_configurations }}"
@@ -72,14 +73,14 @@
       - "{{ item }}"
   loop: "{{ configurations + upgrade_configurations + reset_configurations }}"
 
-#- name: Add patch to git for external_inventory_configurations
-#  ansible.builtin.command:
-#    chdir: "{{ kubespray_git_folder }}"
-#    argv:
-#      - git
-#      - add
-#      - "{{ kubespray_git_folder }}/inventory/{{ item.dest }}"
-#  loop: "{{ external_inventory_configurations }}"
+# - name: Add patch to git for external_inventory_configurations
+#   ansible.builtin.command:
+#     chdir: "{{ kubespray_git_folder }}"
+#     argv:
+#       - git
+#       - add
+#       - "{{ kubespray_git_folder }}/inventory/{{ item.dest }}"
+#   loop: "{{ external_inventory_configurations }}"
 
 - name: Commit patch
   ansible.builtin.command:
@@ -93,10 +94,10 @@
 
 
 - name: Patch kubespray for nvidia-operator support
-  replace:
-      path   : "{{ kubespray_git_folder }}/roles/container-engine/cri-o/templates/crio.conf.j2"
-      regexp : "^[ |\t]+\"/usr/share/containers/oci/hooks.d\",$"
-      replace: "        \"/etc/containers/oci/hooks.d\", \"/usr/share/containers/oci/hooks.d\","
+  ansible.builtin.replace:
+    path: "{{ kubespray_git_folder }}/roles/container-engine/cri-o/templates/crio.conf.j2"
+    regexp: "^[ ]+\"/usr/share/containers/oci/hooks.d\",$"
+    replace: "        \"/etc/containers/oci/hooks.d\", \"/usr/share/containers/oci/hooks.d\","
   when: crio_enabled
 
 - name: Add patch to git
@@ -107,7 +108,7 @@
       - add
       - "{{ item }}"
   loop:
-  - roles/container-engine/cri-o/templates/crio.conf.j2
+    - roles/container-engine/cri-o/templates/crio.conf.j2
   when: crio_enabled
 
 - name: Commit patch
@@ -121,20 +122,20 @@
         enable availability of /etc/containers/oci/hooks.d in crio.conf for the nvidia gpu-operator
   when: crio_enabled
 
-# --- a/roles/kubernetes/node/templates/kubelet.env.v1beta1.j2
-# +++ b/roles/kubernetes/node/templates/kubelet.env.v1beta1.j2
-# @@ -22,6 +22,7 @@ KUBELET_HOSTNAME="--hostname-override={{ kube_override_hostname }}"
-#  --dynamic-config-dir={{ dynamic_kubelet_configuration_dir }} \
-#  {% endif %}
-#  --runtime-cgroups={{ kubelet_runtime_cgroups }} \
-# +--kubelet-cgroups={{ kubelet_runtime_cgroups }} \
+#  --- a/roles/kubernetes/node/templates/kubelet.env.v1beta1.j2
+#  +++ b/roles/kubernetes/node/templates/kubelet.env.v1beta1.j2
+#  @@ -22,6 +22,7 @@ KUBELET_HOSTNAME="--hostname-override={{ kube_override_hostname }}"
+#   --dynamic-config-dir={{ dynamic_kubelet_configuration_dir }} \
+#   {% endif %}
+#   --runtime-cgroups={{ kubelet_runtime_cgroups }} \
+#  +--kubelet-cgroups={{ kubelet_runtime_cgroups }} \
 
-# Patch /var/run/crio (<=1.24 crio bug)
-# https://github.com/ocf/puppet/commit/c436362078f997a86f1c494903f74bf78b2ccdf2
+#  Patch /var/run/crio (<=1.24 crio bug)
+#  https: //github.com/ocf/puppet/commit/c436362078f997a86f1c494903f74bf78b2ccdf2
 - name: Patch patch path /var/run/crio to /run/crio
   ansible.builtin.replace:
     path: "{{ kubespray_git_folder }}/roles/kubespray-defaults/defaults/main.yaml"
-    regexp:  "/var/run/crio/"
+    regexp: "/var/run/crio/"
     replace: "/run/crio/"
   when: crio_enabled
 
@@ -146,7 +147,7 @@
       - add
       - "{{ item }}"
   loop:
-  - roles/kubespray-defaults/defaults/main.yaml
+    - roles/kubespray-defaults/defaults/main.yaml
   when: crio_enabled
 
 - name: Commit patch
@@ -158,22 +159,22 @@
       - -m
       - |-
         Patch /var/run/crio to /run/crio for crio <= 1.24 due the following bug
-        https://github.com/ocf/puppet/commit/c436362078f997a86f1c494903f74bf78b2ccdf2
+        https: //github.com/ocf/puppet/commit/c436362078f997a86f1c494903f74bf78b2ccdf2
         the CRI-O team found performance issues in the CRI stats provider, so there's
         a hack in kubelet which falls back to cadvisor when crio is being used.
-        This is currently broken and causing a bunch of spam in our logs that looks 
-        like  "Unable to fetch pod log stats" -- leading to some nodes (like jaws, 
-        with a 64G disk) to become NotReady due to disk pressure. 
-        This commit works around the above issue by subverting the string check 
+        This is currently broken and causing a bunch of spam in our logs that looks
+        like  "Unable to fetch pod log stats" -- leading to some nodes (like jaws,
+        with a 64G disk) to become NotReady due to disk pressure.
+        This commit works around the above issue by subverting the string check
         using the fact that `/run` is symlinked to `/var/run`.
   when: crio_enabled
 
 
 - name: Patch kubelet.env to remove cadvisor failure reporting in logs
-  lineinfile:
-    dest:        "{{ kubespray_git_folder }}/roles/kubernetes/node/templates/kubelet.env.v1beta1.j2"
+  ansible.builtin.lineinfile:
+    dest: "{{ kubespray_git_folder }}/roles/kubernetes/node/templates/kubelet.env.v1beta1.j2"
     insertafter: "--runtime-cgroups={% raw %}{{ kubelet_runtime_cgroups }}{% endraw %} \\\\"
-    line:        "--kubelet-cgroups={% raw %}{{ kubelet_runtime_cgroups }}{% endraw %} \\"
+    line: "--kubelet-cgroups={% raw %}{{ kubelet_runtime_cgroups }}{% endraw %} \\"
 
 - name: Add them to git
   ansible.builtin.command:
@@ -183,7 +184,7 @@
       - add
       - "{{ item }}"
   loop:
-  - roles/kubernetes/node/templates/kubelet.env.v1beta1.j2
+    - roles/kubernetes/node/templates/kubelet.env.v1beta1.j2
 
 - name: Commit patch
   ansible.builtin.command:
@@ -195,14 +196,14 @@
       - |-
         avoid a lot of error messages because of cadvisor failure in kubelet
 
-#     - { role: kubernetes-apps/cluster_roles, tags: cluster-roles }
-#+    - { role: kubernetes-apps/helm, tags: helm }
+#      - { role: kubernetes-apps/cluster_roles, tags: cluster-roles }
+# +    - { role: kubernetes-apps/helm, tags: helm }
 
 - name: Patch cluster.yml for early helm availability
-  lineinfile:
-    dest:        "{{ kubespray_git_folder }}/playbooks/cluster.yml"
+  ansible.builtin.lineinfile:
+    dest: "{{ kubespray_git_folder }}/playbooks/cluster.yml"
     insertafter: "    - { role: kubernetes-apps/cluster_roles, tags: cluster-roles }"
-    line:        "    - { role: kubernetes-apps/helm, tags: helm }"
+    line: "    - { role: kubernetes-apps/helm, tags: helm }"
 
 - name: Add them to git
   ansible.builtin.command:
@@ -212,7 +213,7 @@
       - add
       - "{{ item }}"
   loop:
-  - playbooks/cluster.yml
+    - playbooks/cluster.yml
 
 - name: Commit patch
   ansible.builtin.command:
@@ -224,28 +225,31 @@
       - |-
         make helm binary available before we go to network_plugin install
 
-- set_fact:
+- name: Set Fact
+  ansible.builtin.set_fact:
     cilium_template_version: 1.13.0
   when: cilium_version[1:] is version('1.13.1', '<')
 
-- set_fact:
+- name: Set Fact
+  ansible.builtin.set_fact:
     cilium_template_version: 1.13.1
   when: cilium_version[1:] is version('1.13.1', '>=')
 
 - name: Copy cilium template
   ansible.builtin.copy:
-    src:  "cilium-values-{{ cilium_template_version }}.yml.j2"
+    src: "cilium-values-{{ cilium_template_version }}.yml.j2"
     dest: "{{ kubespray_git_folder }}/roles/network_plugin/cilium/templates/cilium-values.yml.j2"
     mode: 0644
 
-- set_fact:
+- name: Set Facts
+  ansible.builtin.set_fact:
     file_list:
-    - roles/network_plugin/cilium/tasks/apply.yml
-    - roles/network_plugin/cilium/tasks/install.yml
+      - roles/network_plugin/cilium/tasks/apply.yml
+      - roles/network_plugin/cilium/tasks/install.yml
 
 - name: Copy Files
   ansible.builtin.copy:
-    src:  "{{ item | basename }}"
+    src: "{{ item | basename }}"
     dest: "{{ kubespray_git_folder }}/{{ item }}"
     mode: 0644
   loop: "{{ file_list }}"
@@ -257,8 +261,7 @@
       - git
       - add
       - "{{ item }}"
-  loop: "{{ file_list + [ 'roles/network_plugin/cilium/templates/cilium-values.yml.j2' ] }}"
-
+  loop: "{{ file_list + ['roles/network_plugin/cilium/templates/cilium-values.yml.j2'] }}"
 - name: Commit patch
   ansible.builtin.command:
     chdir: "{{ kubespray_git_folder }}"
@@ -269,24 +272,24 @@
       - |-
         deploy cilium as helm chart
 
-# diff --git a/roles/container-engine/cri-o/tasks/crio_repo.yml b/roles/container-engine/cri-o/tasks/crio_repo.yml
-# index f2b1b71a..08bcce17 100644
-# --- a/roles/container-engine/cri-o/tasks/crio_repo.yml
-# +++ b/roles/container-engine/cri-o/tasks/crio_repo.yml
-# @@ -149,7 +149,7 @@
-#        section: "fedora-modular"
+#  diff --git a/roles/container-engine/cri-o/tasks/crio_repo.yml b/roles/container-engine/cri-o/tasks/crio_repo.yml
+#  index f2b1b71a..08bcce17 100644
+#  --- a/roles/container-engine/cri-o/tasks/crio_repo.yml
+#  +++ b/roles/container-engine/cri-o/tasks/crio_repo.yml
+#  @@ -149,7 +149,7 @@
+#         section: "fedora-modular"
 #
-#  - name: Enable CRI-O ex module
-# -  command: "rpm-ostree ex module enable cri-o:{{ crio_version }}"
-# +  command: "echo rpm-ostree ex module enable cri-o:{{ crio_version }}"
-#    become: true
-#    when:
-#      - is_ostree
+#   - name: Enable CRI-O ex module
+#  -  command: "rpm-ostree ex module enable cri-o:{{ crio_version }}"
+#  +  command: "echo rpm-ostree ex module enable cri-o:{{ crio_version }}"
+#     become: true
+#     when:
+#       - is_ostree
 
 - name: Apply patch for supporting etcd as container
   ansible.posix.patch:
-    #src:  etcd.patch
-    src:  etcd-v2.patch
+    # src: etcd.patch
+    src: etcd-v2.patch
     basedir: "{{ kubespray_git_folder }}"
     strip: 1
 
@@ -298,9 +301,9 @@
       - add
       - "{{ item }}"
   loop:
-  - roles/download/defaults/main.yml
-  - roles/kubernetes/preinstall/tasks/0010-swapoff.yml
-  - roles/kubernetes/preinstall/tasks/0080-system-configurations.yml
+    - roles/download/defaults/main.yml
+    - roles/kubernetes/preinstall/tasks/0010-swapoff.yml
+    - roles/kubernetes/preinstall/tasks/0080-system-configurations.yml
 
 - name: Commit patch
   ansible.builtin.command:
@@ -313,9 +316,9 @@
         Enable for the etcd to not run in a virtual machine, but run in a lxc container
         as it is provided by proxmox
 
-- name: Apply patch for support of the new ansible version in fedora 37 
+- name: Apply patch for support of the new ansible version in fedora 37
   ansible.posix.patch:
-    src:  fedora-37-ansible.patch
+    src: fedora-37-ansible.patch
     basedir: "{{ kubespray_git_folder }}"
     strip: 1
 
@@ -327,8 +330,8 @@
       - add
       - "{{ item }}"
   loop:
-  - playbooks/ansible_version.yml
-  - roles/etcd/tasks/gen_nodes_certs_script.yml
+    - playbooks/ansible_version.yml
+    - roles/etcd/tasks/gen_nodes_certs_script.yml
 
 - name: Commit patch
   ansible.builtin.command:
@@ -342,10 +345,11 @@
 
 
 - name: Quirk somehow multus is called which is not intended
-  replace:
-      path   : "{{ kubespray_git_folder }}/roles/kubernetes-apps/network_plugin/multus/tasks/main.yml"
-      regexp : '^([^#])(.*)'
-      replace: '# \1\2'
+  ansible.builtin.replace:
+    path: |
+      {{ kubespray_git_folder }}/roles/kubernetes-apps/network_plugin/multus/tasks/main.yml
+    regexp: '^([^#])(.*)'
+    replace: '# \1\2'
 
 - name: Add them to git
   ansible.builtin.command:
@@ -355,7 +359,7 @@
       - add
       - "{{ item }}"
   loop:
-  - roles/kubernetes-apps/network_plugin/multus/tasks/main.yml 
+    - roles/kubernetes-apps/network_plugin/multus/tasks/main.yml
 
 - name: Commit patch
   ansible.builtin.command:
@@ -382,7 +386,7 @@
       - add
       - "{{ item }}"
   loop:
-  - roles/kubernetes/control-plane/tasks/kubeadm-setup.yml
+    - roles/kubernetes/control-plane/tasks/kubeadm-setup.yml
 
 - name: Commit patch
   ansible.builtin.command:

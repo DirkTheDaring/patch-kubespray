@@ -1,12 +1,14 @@
-- name: Patch loadbalancer_apiserver in sample inventory to allow dyanmic settings
-  replace:
-    path   : "{{ kubespray_git_folder }}/inventory/sample/group_vars/all/all.yml"
-    regexp : "^# loadbalancer_apiserver:.*$"
+---
+
+- name: Patch loadbalancer_apiserver to allow dynamic settings
+  ansible.builtin.replace:
+    path: "{{ kubespray_git_folder }}/inventory/sample/group_vars/all/all.yml"
+    regexp: "^# loadbalancer_apiserver:.*$"
     replace: |-
       {% raw %}
       loadbalancer_apiserver:
         address: "{{ kubespray_loadbalancer_apiserver_address }}"
-        port:    "{{ kubespray_loadbalancer_apiserver_port }}"
+        port: "{{ kubespray_loadbalancer_apiserver_port }}"
       {% endraw %}
 
 - name: Add patch to git
@@ -17,7 +19,9 @@
       - add
       - "{{ item }}"
   loop:
-  - inventory/sample/group_vars/all/all.yml
+    - inventory/sample/group_vars/all/all.yml
+  tags:
+    - skip_ansible_lint
 
 - name: Commit patch
   ansible.builtin.command:
@@ -28,4 +32,5 @@
       - -m
       - |-
         allow loadbalancer_apiserver to be dynamically defined
-
+  tags:
+    - skip_ansible_lint
