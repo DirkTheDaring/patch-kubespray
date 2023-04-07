@@ -12,9 +12,8 @@
       - "{{ kubespray_patch_prefix }}-{{ version }}"
   register: diff
   failed_when: "diff.rc != 0 and diff.rc != 1"
-
-# - debug:
-#     msg: "{{ diff.stdout }}"
+  tags:
+    - skip_ansible_lint
 
 - name: Copy
   ansible.builtin.copy:

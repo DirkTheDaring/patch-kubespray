@@ -1,20 +1,22 @@
 ---
-- name: Create branch
+- name: Add files to git
   ansible.builtin.command:
     chdir: "{{ kubespray_git_folder }}"
     argv:
       - git
-      - branch
-      - new-features
+      - add
+      - "{{ item }}"
+  loop: "{{ git_file_list }}"
   tags:
     - skip_ansible_lint
 
-- name: Checkout branch
+- name: Commit changes
   ansible.builtin.command:
     chdir: "{{ kubespray_git_folder }}"
     argv:
       - git
-      - checkout
-      - new-features
+      - commit
+      - -m
+      - "{{ git_message }}"
   tags:
     - skip_ansible_lint

@@ -1,0 +1,13 @@
+---
+- name: Apply patch
+  ansible.posix.patch:
+    src: "{{ patch_file }}"
+    basedir: "{{ kubespray_git_folder }}"
+    strip: 1
+
+- name: Create list of files which are patched
+  ansible.builtin.set_fact:
+    git_file_list: "{{ lookup('file', patch_file) | regex_findall('^\\+\\+\\+ [^/]+/(.*)$', multiline=true) }}"
+
+- name: Commit files to git
+  ansible.builtin.include_tasks: commit-files.yml

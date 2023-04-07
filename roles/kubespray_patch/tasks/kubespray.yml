@@ -5,36 +5,24 @@
     state: directory
     mode: '0755'
 
+- name: Set fact
+  ansible.builtin.set_fact:
+    git_file_list:
+      - bin/kubespray.sh
+      - bin/reset.sh
+    git_message: |
+      kubespray.sh which going to be symlinked
+      usually not called directly but with a symlink
+
 - name: Copy bin files
   ansible.builtin.copy:
     src: "{{ item }}"
     dest: "{{ kubespray_git_folder }}/{{ item }}"
     mode: '0755'
-  loop:
-    - bin/kubespray.sh
-    - bin/reset.sh
+  loop: "{{ git_file_list }}"
 
-- name: Add patch to git
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - add
-      - "{{ item }}"
-  loop:
-    - bin/kubespray.sh
-    - bin/reset.sh
-
-- name: Commit patch
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - commit
-      - -m
-      - |-
-        kubespray.sh which going to be symlinked
-        usually not called directly but with a symlink
+- name: Commit files to git
+  ansible.builtin.include_tasks: commit-files.yml
 
 - name: Create a symbolic link
   ansible.builtin.file:
@@ -64,111 +52,63 @@
     state: link
   loop: "{{ external_inventory_configurations }}"
 
-- name: Add patch to git for configurations
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - add
-      - "{{ item }}"
-  loop: "{{ configurations + upgrade_configurations + reset_configurations }}"
+- name: Set fact
+  ansible.builtin.set_fact:
+    git_file_list: "{{ configurations + upgrade_configurations + reset_configurations }}"
+    git_message: |
+      All symlinks specific to this setup
 
-# - name: Add patch to git for external_inventory_configurations
-#   ansible.builtin.command:
-#     chdir: "{{ kubespray_git_folder }}"
-#     argv:
-#       - git
-#       - add
-#       - "{{ kubespray_git_folder }}/inventory/{{ item.dest }}"
-#   loop: "{{ external_inventory_configurations }}"
+- name: Commit files to git
+  ansible.builtin.include_tasks: commit-files.yml
 
-- name: Commit patch
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - commit
-      - -m
-      - |-
-        All symlinks specific to this setup
-
-
-- name: Patch kubespray for nvidia-operator support
-  ansible.builtin.replace:
-    path: "{{ kubespray_git_folder }}/roles/container-engine/cri-o/templates/crio.conf.j2"
-    regexp: "^[ \t]+\"/usr/share/containers/oci/hooks.d\",$"
-    replace: "        \"/etc/containers/oci/hooks.d\", \"/usr/share/containers/oci/hooks.d\","
+- name: CRIO
   when: crio_enabled
+  block:
+    - name: Patch kubespray for nvidia-operator support
+      ansible.builtin.replace:
+        path: "{{ kubespray_git_folder }}/roles/container-engine/cri-o/templates/crio.conf.j2"
+        regexp: "^[ \t]+\"/usr/share/containers/oci/hooks.d\",$"
+        replace: "        \"/etc/containers/oci/hooks.d\", \"/usr/share/containers/oci/hooks.d\","
+      tags:
+        - skip_ansible_lint
 
-- name: Add patch to git
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - add
-      - "{{ item }}"
-  loop:
-    - roles/container-engine/cri-o/templates/crio.conf.j2
-  when: crio_enabled
+    - name: Set fact
+      ansible.builtin.set_fact:
+        git_file_list:
+          - roles/container-engine/cri-o/templates/crio.conf.j2
+        git_message: |
+          enable availability of /etc/containers/oci/hooks.d in crio.conf for the nvidia gpu-operator
 
-- name: Commit patch
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - commit
-      - -m
-      - |-
-        enable availability of /etc/containers/oci/hooks.d in crio.conf for the nvidia gpu-operator
-  when: crio_enabled
+    - name: Commit files to git
+      ansible.builtin.include_tasks: commit-files.yml
 
-#  --- a/roles/kubernetes/node/templates/kubelet.env.v1beta1.j2
-#  +++ b/roles/kubernetes/node/templates/kubelet.env.v1beta1.j2
-#  @@ -22,6 +22,7 @@ KUBELET_HOSTNAME="--hostname-override={{ kube_override_hostname }}"
-#   --dynamic-config-dir={{ dynamic_kubelet_configuration_dir }} \
-#   {% endif %}
-#   --runtime-cgroups={{ kubelet_runtime_cgroups }} \
-#  +--kubelet-cgroups={{ kubelet_runtime_cgroups }} \
+    #  Patch /var/run/crio (<=1.24 crio bug)
+    #  https: //github.com/ocf/puppet/commit/c436362078f997a86f1c494903f74bf78b2ccdf2
+    - name: Patch patch path /var/run/crio to /run/crio
+      ansible.builtin.replace:
+        path: "{{ kubespray_git_folder }}/roles/kubespray-defaults/defaults/main.yaml"
+        regexp: "/var/run/crio/"
+        replace: "/run/crio/"
 
-#  Patch /var/run/crio (<=1.24 crio bug)
-#  https: //github.com/ocf/puppet/commit/c436362078f997a86f1c494903f74bf78b2ccdf2
-- name: Patch patch path /var/run/crio to /run/crio
-  ansible.builtin.replace:
-    path: "{{ kubespray_git_folder }}/roles/kubespray-defaults/defaults/main.yaml"
-    regexp: "/var/run/crio/"
-    replace: "/run/crio/"
-  when: crio_enabled
+    - name: Set fact
+      ansible.builtin.set_fact:
+        git_file_list:
+          - roles/kubespray-defaults/defaults/main.yaml
+        git_message: |
+          Patch /var/run/crio to /run/crio for crio <= 1.24 due the following bug
+          https: //github.com/ocf/puppet/commit/c436362078f997a86f1c494903f74bf78b2ccdf2
+          the CRI-O team found performance issues in the CRI stats provider, so there's
+          a hack in kubelet which falls back to cadvisor when crio is being used.
+          This is currently broken and causing a bunch of spam in our logs that looks
+          like  "Unable to fetch pod log stats" -- leading to some nodes (like jaws,
+          with a 64G disk) to become NotReady due to disk pressure.
+          This commit works around the above issue by subverting the string check
+          using the fact that `/run` is symlinked to `/var/run`.
 
-- name: Add patch to git
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - add
-      - "{{ item }}"
-  loop:
-    - roles/kubespray-defaults/defaults/main.yaml
-  when: crio_enabled
+    - name: Commit files to git
+      ansible.builtin.include_tasks: commit-files.yml
 
-- name: Commit patch
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - commit
-      - -m
-      - |-
-        Patch /var/run/crio to /run/crio for crio <= 1.24 due the following bug
-        https: //github.com/ocf/puppet/commit/c436362078f997a86f1c494903f74bf78b2ccdf2
-        the CRI-O team found performance issues in the CRI stats provider, so there's
-        a hack in kubelet which falls back to cadvisor when crio is being used.
-        This is currently broken and causing a bunch of spam in our logs that looks
-        like  "Unable to fetch pod log stats" -- leading to some nodes (like jaws,
-        with a 64G disk) to become NotReady due to disk pressure.
-        This commit works around the above issue by subverting the string check
-        using the fact that `/run` is symlinked to `/var/run`.
-  when: crio_enabled
-
+# FIXME really needed for v1.26.* ?
 
 - name: Patch kubelet.env to remove cadvisor failure reporting in logs
   ansible.builtin.lineinfile:
@@ -176,25 +116,15 @@
     insertafter: "--runtime-cgroups={% raw %}{{ kubelet_runtime_cgroups }}{% endraw %} \\\\"
     line: "--kubelet-cgroups={% raw %}{{ kubelet_runtime_cgroups }}{% endraw %} \\"
 
-- name: Add them to git
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - add
-      - "{{ item }}"
-  loop:
-    - roles/kubernetes/node/templates/kubelet.env.v1beta1.j2
+- name: Set fact
+  ansible.builtin.set_fact:
+    git_file_list:
+      - roles/kubernetes/node/templates/kubelet.env.v1beta1.j2
+    git_message: |
+      avoid a lot of error messages because of cadvisor failure in kubelet
 
-- name: Commit patch
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - commit
-      - -m
-      - |-
-        avoid a lot of error messages because of cadvisor failure in kubelet
+- name: Commit files to git
+  ansible.builtin.include_tasks: commit-files.yml
 
 #      - { role: kubernetes-apps/cluster_roles, tags: cluster-roles }
 # +    - { role: kubernetes-apps/helm, tags: helm }
@@ -205,25 +135,15 @@
     insertafter: "    - { role: kubernetes-apps/cluster_roles, tags: cluster-roles }"
     line: "    - { role: kubernetes-apps/helm, tags: helm }"
 
-- name: Add them to git
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - add
-      - "{{ item }}"
-  loop:
-    - playbooks/cluster.yml
+- name: Set fact
+  ansible.builtin.set_fact:
+    git_file_list:
+      - playbooks/cluster.yml
+    git_message: |
+      make helm binary available before we go to network_plugin install
 
-- name: Commit patch
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - commit
-      - -m
-      - |-
-        make helm binary available before we go to network_plugin install
+- name: Commit files to git
+  ansible.builtin.include_tasks: commit-files.yml
 
 - name: Set Fact
   ansible.builtin.set_fact:
@@ -254,23 +174,14 @@
     mode: 0644
   loop: "{{ file_list }}"
 
-- name: Add them to git
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - add
-      - "{{ item }}"
-  loop: "{{ file_list + ['roles/network_plugin/cilium/templates/cilium-values.yml.j2'] }}"
-- name: Commit patch
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - commit
-      - -m
-      - |-
-        deploy cilium as helm chart
+- name: Set fact
+  ansible.builtin.set_fact:
+    git_file_list: "{{ file_list + ['roles/network_plugin/cilium/templates/cilium-values.yml.j2'] }}"
+    git_message: |
+      deploy cilium as helm chart
+
+- name: Commit files to git
+  ansible.builtin.include_tasks: commit-files.yml
 
 #  diff --git a/roles/container-engine/cri-o/tasks/crio_repo.yml b/roles/container-engine/cri-o/tasks/crio_repo.yml
 #  index f2b1b71a..08bcce17 100644
@@ -286,63 +197,24 @@
 #     when:
 #       - is_ostree
 
+- name: Set facts
+  ansible.builtin.set_fact:
+    patch_file: etcd-v2.patch
+    git_message: |
+      Enable for the etcd to not run in a virtual machine, but run in a lxc container
+      as it is provided by proxmox. An Lxc Container has no swap file
+
 - name: Apply patch for supporting etcd as container
-  ansible.posix.patch:
-    # src: etcd.patch
-    src: etcd-v2.patch
-    basedir: "{{ kubespray_git_folder }}"
-    strip: 1
+  ansible.builtin.include_tasks: apply-patch.yml
 
-- name: Add them to git
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - add
-      - "{{ item }}"
-  loop:
-    - roles/download/defaults/main.yml
-    - roles/kubernetes/preinstall/tasks/0010-swapoff.yml
-    - roles/kubernetes/preinstall/tasks/0080-system-configurations.yml
-
-- name: Commit patch
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - commit
-      - -m
-      - |-
-        Enable for the etcd to not run in a virtual machine, but run in a lxc container
-        as it is provided by proxmox
+- name: Set facts
+  ansible.builtin.set_fact:
+    patch_file: fedora-37-ansible.patch
+    git_message: |
+      Support new ansible in fedora 37
 
 - name: Apply patch for support of the new ansible version in fedora 37
-  ansible.posix.patch:
-    src: fedora-37-ansible.patch
-    basedir: "{{ kubespray_git_folder }}"
-    strip: 1
-
-- name: Add them to git
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - add
-      - "{{ item }}"
-  loop:
-    - playbooks/ansible_version.yml
-    - roles/etcd/tasks/gen_nodes_certs_script.yml
-
-- name: Commit patch
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - commit
-      - -m
-      - |-
-        Support new ansible in fedora 37
-
+  ansible.builtin.include_tasks: apply-patch.yml
 
 - name: Quirk somehow multus is called which is not intended
   ansible.builtin.replace:
@@ -350,49 +222,21 @@
     regexp: '^([^#])(.*)'
     replace: '# \1\2'
 
-- name: Add them to git
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - add
-      - "{{ item }}"
-  loop:
-    - roles/kubernetes-apps/network_plugin/multus/tasks/main.yml
+- name: Set facts
+  ansible.builtin.set_fact:
+    git_file_list:
+      - roles/kubernetes-apps/network_plugin/multus/tasks/main.yml
+    git_message: |
+      Workaround multus step, which happens to fail in my setup
 
-- name: Commit patch
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - commit
-      - -m
-      - |-
-        Workaround multus step, which happens to fail in my setup
+- name: Commit files to git
+  ansible.builtin.include_tasks: commit-files.yml
 
+- name: Set facts
+  ansible.builtin.set_fact:
+    patch_file: kubeadm-setup-race-condition.patch
+    git_message: |
+      Fix race condition in kubeadm-setup.yml
 
-- name: Apply patch for race condition
-  ansible.posix.patch:
-    src: kubeadm-setup-race-condition.patch
-    basedir: "{{ kubespray_git_folder }}"
-    strip: 1
-
-- name: Add them to git
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - add
-      - "{{ item }}"
-  loop:
-    - roles/kubernetes/control-plane/tasks/kubeadm-setup.yml
-
-- name: Commit patch
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - commit
-      - -m
-      - |-
-        Fix race condition in kubeadm-setup.yml
+- name: Apply patch for race condition fix in kubeadm-setup
+  ansible.builtin.include_tasks: apply-patch.yml
