@@ -1,8 +1,8 @@
 diff --git a/roles/download/defaults/main.yml b/roles/download/defaults/main.yml
-index a37b489d..1b59bc2c 100644
+index 0fe4d059b..fc6f301fc 100644
 --- a/roles/download/defaults/main.yml
 +++ b/roles/download/defaults/main.yml
-@@ -1082,6 +1082,8 @@ downloads:
+@@ -1188,6 +1188,8 @@ downloads:
        else etcd_digest_checksum|d(None) }}
      url: "{{ etcd_download_url }}"
      unarchive: "{{ etcd_deployment_type == 'host' }}"
@@ -12,7 +12,7 @@ index a37b489d..1b59bc2c 100644
      mode: "0755"
      groups:
 diff --git a/roles/kubernetes/preinstall/tasks/0010-swapoff.yml b/roles/kubernetes/preinstall/tasks/0010-swapoff.yml
-index 4ea91d83..3f14b03b 100644
+index 4ea91d83e..277cd8364 100644
 --- a/roles/kubernetes/preinstall/tasks/0010-swapoff.yml
 +++ b/roles/kubernetes/preinstall/tasks/0010-swapoff.yml
 @@ -19,6 +19,7 @@
@@ -24,6 +24,7 @@ index 4ea91d83..3f14b03b 100644
  
  - name: Disable swapOnZram for Fedora
 diff --git a/roles/kubernetes/preinstall/tasks/0080-system-configurations.yml b/roles/kubernetes/preinstall/tasks/0080-system-configurations.yml
+index dafa47f79..b22d73d89 100644
 --- a/roles/kubernetes/preinstall/tasks/0080-system-configurations.yml
 +++ b/roles/kubernetes/preinstall/tasks/0080-system-configurations.yml
 @@ -119,14 +119,18 @@

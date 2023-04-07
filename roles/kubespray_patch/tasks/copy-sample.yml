@@ -29,3 +29,33 @@
     src: "{{ dest_folder_name }}"
     dest: "{{ kubespray_git_folder }}/inventory/default"
     state: link
+
+- name: Set facts
+  ansible.builtin.set_fact:
+    git_file_list:
+      - "{{ dest_folder }}"
+    git_message: |
+      Commit copy of sample inventory
+
+- name: Add files to git
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - add
+      - -f
+      - "{{ item }}"
+  loop: "{{ git_file_list }}"
+  tags:
+    - skip_ansible_lint
+
+- name: Commit changes
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - commit
+      - -m
+      - "{{ git_message }}"
+  tags:
+    - skip_ansible_lint

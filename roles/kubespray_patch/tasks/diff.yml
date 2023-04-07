@@ -15,8 +15,46 @@
   tags:
     - skip_ansible_lint
 
+- name: Set facts
+  ansible.builtin.set_fact:
+    patch_file: "{{ kubespray_git_folder }}/inventory/{{ kubespray_patch_prefix }}-{{ version }}.patch"
+
 - name: Copy
   ansible.builtin.copy:
     content: "{{ diff.stdout }}"
-    dest: "{{ kubespray_git_folder }}/inventory/{{ kubespray_patch_prefix }}-{{ version }}.patch"
+    dest: "{{ patch_file }}"
     mode: '0644'
+
+- name: Create list of files which are patched
+  ansible.builtin.set_fact:
+    git_file_list: "{{ lookup('file', patch_file) | regex_findall('^\\+\\+\\+ [^/]+/(.*)?\t.*$', multiline=true) }}"
+    git_message: |
+      All changes to the inventory files
+
+- name: Add files to git
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}/inventory/{{ kubespray_patch_prefix }}-{{ version }}"
+    argv:
+      - git
+      - add
+      - -f
+      - "{{ item }}"
+  loop: "{{ git_file_list }}"
+  tags:
+    - skip_ansible_lint
+
+- name: Commit changes
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}/inventory/{{ kubespray_patch_prefix }}-{{ version }}"
+    argv:
+      - git
+      - commit
+      - -m
+      - "{{ git_message }}"
+  tags:
+    - skip_ansible_lint
+
+- name: Remove diff file
+  ansible.builtin.file:
+    path:  "{{ patch_file }}"
+    state: absent

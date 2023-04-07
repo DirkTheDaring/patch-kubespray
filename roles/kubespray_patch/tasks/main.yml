@@ -3,13 +3,13 @@
   ansible.builtin.import_tasks: git-checkout.yml
 - name: Branch git repository
   ansible.builtin.import_tasks: git-branch.yml
-- name: Patch
-  ansible.builtin.import_tasks: patch-sample-inventory.yml
+
+- name: Patch kubespray
+  ansible.builtin.import_tasks: kubespray.yml
+
 - name: Copy Sample Inventory
   ansible.builtin.import_tasks: copy-sample.yml
 - name: Patch inventory
   ansible.builtin.import_tasks: inventory.yml
 - name: Create diff
   ansible.builtin.import_tasks: diff.yml
-- name: Patch kubespray
-  ansible.builtin.import_tasks: kubespray.yml

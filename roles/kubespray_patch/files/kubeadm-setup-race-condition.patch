@@ -1,8 +1,8 @@
 diff --git a/roles/kubernetes/control-plane/tasks/kubeadm-setup.yml b/roles/kubernetes/control-plane/tasks/kubeadm-setup.yml
-index 3bfd8e27d..0f6e149eb 100644
+index 097fb0f44..3850e7378 100644
 --- a/roles/kubernetes/control-plane/tasks/kubeadm-setup.yml
 +++ b/roles/kubernetes/control-plane/tasks/kubeadm-setup.yml
-@@ -183,12 +183,26 @@
+@@ -184,12 +184,26 @@
      PATH: "{{ bin_dir }}:{{ ansible_env.PATH }}"
    notify: Master | restart kubelet
  
