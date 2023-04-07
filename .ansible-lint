@@ -1,0 +1,6 @@
+---
+skip_list:
+  - "no-tabs"
+exclude_paths:
+  - test
+  - target-*

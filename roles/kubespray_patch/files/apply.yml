@@ -122,7 +122,7 @@
       minutes: 5
 
   - name: Cilium | Wait for pods to to be running
-    command: "{{ kubectl }} -n kube-system get pods -l k8s-app=cilium -o jsonpath='{.items[?(@.status.containerStatuses[0].ready==false)].metadata.name}'"  # noqa 601
+    command: "{{ kubectl }} -n kube-system get pods -l k8s-app=cilium -o jsonpath='{.items[?(@.status.containerStatuses[0].ready==false)].metadata.name}'"
     #command:  "{{ kubectl }} -n kube-system get pods -l k8s-app=cilium -o jsonpath=\"{.items[?(@.status.phase=='Running')].metadata.name}\""
     register: pods_not_ready
     until:    pods_not_ready.stdout.find("cilium")==-1

@@ -1,0 +1,14 @@
+---
+#  This is the YAML part of ansible-lint
+#  it does not configure the high level checks
+extends: default
+
+rules:
+  line-length:
+    max: 200
+    level: warning
+
+ignore:
+  - test/
+  - "target-*"
+  - roles/kubespray_patch/files/
