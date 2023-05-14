@@ -5,7 +5,10 @@ external_inventory_configurations: []
 reset_configurations: []
 
 kubespray_git_repository: https://github.com/kubernetes-sigs/kubespray
-kubespray_git_version: 0c4f57a09366fc1da09a7e93c13afa84955d7e11
+# kubespray_git_version: 0c4f57a09366fc1da09a7e93c13afa84955d7e11
+# kubespray_git_version: a505a4c71fd45e42311a4c152253c9423017cb9b
+kubespray_git_version: 4ffe138dfaf400637acaf334d9e88528971fa372
+
 kubespray_git_folder: "{{ playbook_dir }}/target"
 
 kube_oidc_enabled: true

@@ -1,0 +1,50 @@
+diff --git a/roles/download/defaults/main.yml b/roles/download/defaults/main.yml
+index 919fb0b9a..7b21e913e 100644
+--- a/roles/download/defaults/main.yml
++++ b/roles/download/defaults/main.yml
+@@ -1220,6 +1220,8 @@ downloads:
+       else etcd_digest_checksum|d(None) }}
+     url: "{{ etcd_download_url }}"
+     unarchive: "{{ etcd_deployment_type == 'host' }}"
++    unarchive_extra_opts:
++    - --no-same-owner
+     owner: "root"
+     mode: "0755"
+     groups:
+diff --git a/roles/kubernetes/preinstall/tasks/0010-swapoff.yml b/roles/kubernetes/preinstall/tasks/0010-swapoff.yml
+index c3c5e9e91..b8f0b41d4 100644
+--- a/roles/kubernetes/preinstall/tasks/0010-swapoff.yml
++++ b/roles/kubernetes/preinstall/tasks/0010-swapoff.yml
+@@ -18,6 +18,7 @@
+   command: /sbin/swapoff -a
+   when:
+     - swapon.stdout
++    - ansible_virtualization_type != "lxc"
+   ignore_errors: "{{ ansible_check_mode }}"  # noqa ignore-errors
+ 
+ - name: Disable swapOnZram for Fedora
+diff --git a/roles/kubernetes/preinstall/tasks/0080-system-configurations.yml b/roles/kubernetes/preinstall/tasks/0080-system-configurations.yml
+index 91a254290..0c247c15a 100644
+--- a/roles/kubernetes/preinstall/tasks/0080-system-configurations.yml
++++ b/roles/kubernetes/preinstall/tasks/0080-system-configurations.yml
+@@ -119,14 +119,18 @@
+     - { name: kernel.panic_on_oops, value: 1 }
+     - { name: vm.overcommit_memory, value: 1 }
+     - { name: vm.panic_on_oom, value: 0 }
+-  when: kubelet_protect_kernel_defaults|bool
++  when:
++  - kubelet_protect_kernel_defaults|bool
++  - ansible_virtualization_type != "lxc"
+ 
+ - name: Check dummy module
+   modprobe:
+     name: dummy
+     state: present
+     params: 'numdummies=0'
+-  when: enable_nodelocaldns
++  when:
++  - enable_nodelocaldns
++  - ansible_virtualization_type != "lxc"
+ 
+ - name: Set additional sysctl variables
+   sysctl:
