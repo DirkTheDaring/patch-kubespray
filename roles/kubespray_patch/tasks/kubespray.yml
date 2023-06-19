@@ -209,12 +209,14 @@
 
 - name: Set facts
   ansible.builtin.set_fact:
-    patch_file: fedora-37-ansible.patch
+    patch_file: fedora-38-ansible.patch
     git_message: |
-      Support new ansible in fedora 37
+      Support new ansible in fedora 38
 
 - name: Apply patch for support of the new ansible version in fedora 37
   ansible.builtin.include_tasks: apply-patch.yml
+
+
 
 #- name: Quirk somehow multus is called which is not intended
 #  ansible.builtin.replace:
@@ -239,4 +241,13 @@
       Fix race condition in kubeadm-setup.yml
 
 - name: Apply patch for race condition fix in kubeadm-setup
+  ansible.builtin.include_tasks: apply-patch.yml
+
+- name: Set facts
+  ansible.builtin.set_fact:
+    patch_file: roles-kubernetes--apps-helm-tasks-main.patch
+    git_message: |
+      Remove the install pyyaml
+
+- name: Apply patch to remove the install pyyaml
   ansible.builtin.include_tasks: apply-patch.yml

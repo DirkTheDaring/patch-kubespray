@@ -1,0 +1,21 @@
+diff --git a/roles/kubernetes-apps/helm/tasks/main.yml b/roles/kubernetes-apps/helm/tasks/main.yml
+index 0ac7edca9..f2ed89791 100644
+--- a/roles/kubernetes-apps/helm/tasks/main.yml
++++ b/roles/kubernetes-apps/helm/tasks/main.yml
+@@ -13,11 +13,11 @@
+         - ../vars
+       skip: true
+ 
+-- name: Helm | Install PyYaml
+-  package:
+-    name: "{{ pyyaml_package }}"
+-    state: present
+-  when: pyyaml_package is defined
++#- name: Helm | Install PyYaml
++#  package:
++#    name: "{{ pyyaml_package }}"
++#    state: present
++#  when: pyyaml_package is defined
+ 
+ - name: Helm | Install PyYaml [flatcar]
+   include_tasks: pyyaml-flatcar.yml
