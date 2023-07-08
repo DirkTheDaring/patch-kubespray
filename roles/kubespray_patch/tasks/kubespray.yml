@@ -199,7 +199,7 @@
 
 - name: Set facts
   ansible.builtin.set_fact:
-    patch_file: etcd-v3.patch
+    patch_file: etcd-v4.patch
     git_message: |
       Enable for the etcd to not run in a virtual machine, but run in a lxc container
       as it is provided by proxmox. An Lxc Container has no swap file
@@ -207,15 +207,14 @@
 - name: Apply patch for supporting etcd as container
   ansible.builtin.include_tasks: apply-patch.yml
 
-- name: Set facts
-  ansible.builtin.set_fact:
-    patch_file: fedora-38-ansible.patch
-    git_message: |
-      Support new ansible in fedora 38
-
-- name: Apply patch for support of the new ansible version in fedora 37
-  ansible.builtin.include_tasks: apply-patch.yml
-
+#- name: Set facts
+#  ansible.builtin.set_fact:
+#    patch_file: fedora-38-ansible.patch
+#    git_message: |
+#      Support new ansible in fedora 38
+#
+#- name: Apply patch for support of the new ansible version in fedora
+#  ansible.builtin.include_tasks: apply-patch.yml
 
 
 #- name: Quirk somehow multus is called which is not intended
@@ -236,7 +235,7 @@
 
 - name: Set facts
   ansible.builtin.set_fact:
-    patch_file: kubeadm-setup-race-condition.patch
+    patch_file: kubeadm-setup-race-condition-v2.patch
     git_message: |
       Fix race condition in kubeadm-setup.yml
 
