@@ -1,5 +1,7 @@
---- ./roles/kubernetes/control-plane/tasks/kubeadm-setup.yml.orig	2023-07-28 15:47:31.886705136 +0200
-+++ ./roles/kubernetes/control-plane/tasks/kubeadm-setup.yml	2023-07-28 15:59:41.444412080 +0200
+diff --git a/roles/kubernetes/control-plane/tasks/kubeadm-setup.yml b/roles/kubernetes/control-plane/tasks/kubeadm-setup.yml
+index 375008a60..6b5b83434 100644
+--- a/roles/kubernetes/control-plane/tasks/kubeadm-setup.yml
++++ b/roles/kubernetes/control-plane/tasks/kubeadm-setup.yml
 @@ -184,12 +184,26 @@
      PATH: "{{ bin_dir }}:{{ ansible_env.PATH }}"
    notify: Master | restart kubelet
