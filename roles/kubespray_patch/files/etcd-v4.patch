@@ -1,8 +1,8 @@
 diff --git a/roles/download/defaults/main/main.yml b/roles/download/defaults/main/main.yml
-index 2c1f2ac4b..a1b573f55 100644
+index 8bc439915..bc546ecee 100644
 --- a/roles/download/defaults/main/main.yml
 +++ b/roles/download/defaults/main/main.yml
-@@ -415,6 +415,8 @@ downloads:
+@@ -412,6 +412,8 @@ downloads:
        else etcd_digest_checksum | d(None) }}
      url: "{{ etcd_download_url }}"
      unarchive: "{{ etcd_deployment_type == 'host' }}"
@@ -48,3 +48,16 @@ index 87fb17667..ce56eda66 100644
  
  - name: Set additional sysctl variables
    ansible.posix.sysctl:
+diff --git a/roles/etcdctl_etcdutl/tasks/main.yml b/roles/etcdctl_etcdutl/tasks/main.yml
+index 39e87dc31..72f392837 100644
+--- a/roles/etcdctl_etcdutl/tasks/main.yml
++++ b/roles/etcdctl_etcdutl/tasks/main.yml
+@@ -25,6 +25,8 @@
+     src: "{{ downloads.etcd.dest }}"
+     dest: "{{ local_release_dir }}/"
+     remote_src: yes
++    extra_opts:
++      - --no-same-owner
+   when: container_manager in ['crio', 'containerd']
+ 
+ - name: Copy etcdctl and etcdutl binary from download dir

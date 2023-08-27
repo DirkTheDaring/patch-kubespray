@@ -9,5 +9,10 @@
   ansible.builtin.set_fact:
     git_file_list: "{{ lookup('file', patch_file) | regex_findall('^\\+\\+\\+ [^/]+/(.*)$', multiline=true) }}"
 
+- name: debug
+  ansible.builtin.debug:
+    msg: "{{ git_file_list }}"
+
+
 - name: Commit files to git
   ansible.builtin.include_tasks: commit-files.yml

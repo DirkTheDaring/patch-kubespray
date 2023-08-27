@@ -5,14 +5,14 @@ external_inventory_configurations: []
 reset_configurations: []
 
 kubespray_git_repository: https://github.com/kubernetes-sigs/kubespray
-kubespray_git_version: 36e5d742dc2b3f7984398c38009f236be7c3c065
+kubespray_git_version: 0932318b85d4a8848fa6ee9aef96d474c507095b
 kubespray_git_folder: "{{ playbook_dir }}/target"
 
 kube_oidc_enabled: true
 kube_lodabalancer_apiserver_enabled: false
 crio_enabled: true
-cilium_version: "v1.13.4"
-kube_version: "v1.26.7"
+cilium_version: "v1.14.1"
+kube_version: "v1.26.8"
 
 local_path_provisioner_claim_root: /opt/local-path-provisioner/
 local_volume_provisioner_enabled: false
