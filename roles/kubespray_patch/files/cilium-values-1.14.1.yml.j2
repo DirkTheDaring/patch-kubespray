@@ -1636,7 +1636,7 @@ readinessProbe:
 {% if cilium_kube_proxy_replacement is not defined %}
 #kubeProxyReplacement: "false"
 {% else %}
-kubeProxyReplacement: "{{ cilium_kube_proxy_replacement }}"
+kubeProxyReplacement: "{{ cilium_kube_proxy_replacement | lower }}"
 {% endif %}
 
 # -- healthz server bind address for the kube-proxy replacement.
