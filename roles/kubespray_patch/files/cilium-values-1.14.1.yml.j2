@@ -272,7 +272,8 @@ securityContext:
   # -- User to run the pod with
   # runAsUser: 0
   # -- Run the pod with elevated privileges
-  privileged: false
+  # original default is 'false' but 14.1 has not provided enough permisions
+  privileged: {{ cilium_security_context_privileged | default('true') | lower }}
   # -- SELinux options for the `cilium-agent` and init containers
   seLinuxOptions:
     level: 's0'
