@@ -302,7 +302,7 @@
       cilium_cluster_name: {{ cilium_cluster_name }}
       cilium_cluster_id: {{ cilium_cluster_id }}
       #
-      cilium_kube_proxy_replacement: {{ cilium_kube_proxy_replacement | default('partial') }}
+      cilium_kube_proxy_replacement: {{ cilium_kube_proxy_replacement | default('false') }}
 
       #
       mapDynamicSizeRatio: {{ cilium_bpf_map_dynamic_size_ratio | default("~") }}
