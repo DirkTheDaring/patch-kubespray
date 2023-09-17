@@ -212,14 +212,16 @@
 - name: Apply patch for supporting etcd as container
   ansible.builtin.include_tasks: apply-patch.yml
 
-#- name: Set facts
-#  ansible.builtin.set_fact:
-#    patch_file: fedora-38-ansible.patch
-#    git_message: |
-#      Support new ansible in fedora 38
-#
-#- name: Apply patch for support of the new ansible version in fedora
-#  ansible.builtin.include_tasks: apply-patch.yml
+- name: Set facts
+  ansible.builtin.set_fact:
+    patch_file: ansible_version.yml.patch
+    git_message: |
+      Due https://github.com/ansible/ansible/issues/80490, we have an issue and we need
+      to switch to at least ansible version 1.15.4 - which is currently not supported
+      by official kubespray
+
+- name: Apply patch for support of the new ansible version in fedora
+  ansible.builtin.include_tasks: apply-patch.yml
 
 
 #- name: Quirk somehow multus is called which is not intended

@@ -1,0 +1,13 @@
+diff --git a/playbooks/ansible_version.yml b/playbooks/ansible_version.yml
+index 840749af5..236af1357 100644
+--- a/playbooks/ansible_version.yml
++++ b/playbooks/ansible_version.yml
+@@ -5,7 +5,7 @@
+   become: no
+   vars:
+     minimal_ansible_version: 2.14.0
+-    maximal_ansible_version: 2.15.0
++    maximal_ansible_version: 2.16.0
+     ansible_connection: local
+   tags: always
+   tasks:
