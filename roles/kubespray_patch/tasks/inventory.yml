@@ -98,6 +98,10 @@
     regexp: "^kube_network_plugin:.*$"
     replace: "kube_network_plugin: \"{{ kube_network_plugin }}\""
 
+- name: Kube version setting
+  debug:
+    msg: "kube_version: {{ kube_version }}"
+
 - name: Patch kube_version
   ansible.builtin.replace:
     path: "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
