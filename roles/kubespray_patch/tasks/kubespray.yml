@@ -162,6 +162,11 @@
 
 - name: Set Fact
   ansible.builtin.set_fact:
+    cilium_template_version: 1.14.2
+  when: cilium_version[1:] is version('1.14.2', '>=')
+
+- name: Set Fact
+  ansible.builtin.set_fact:
     cilium_template_version: 1.14.4
   when: cilium_version[1:] is version('1.14.4', '>=')
 
@@ -229,21 +234,21 @@
   ansible.builtin.include_tasks: apply-patch.yml
 
 
-#- name: Quirk somehow multus is called which is not intended
-#  ansible.builtin.replace:
-#    path: "{{ kubespray_git_folder }}/roles/kubernetes-apps/network_plugin/multus/tasks/main.yml"
-#    regexp: '^([^#])(.*)'
-#    replace: '# \1\2'
-#
-#- name: Set facts
-#  ansible.builtin.set_fact:
-#    git_file_list:
-#      - roles/kubernetes-apps/network_plugin/multus/tasks/main.yml
-#    git_message: |
-#      Workaround multus step, which happens to fail in my setup
-#
-#- name: Commit files to git
-#  ansible.builtin.include_tasks: commit-files.yml
+- name: Quirk somehow multus is called which is not intended
+  ansible.builtin.replace:
+    path: "{{ kubespray_git_folder }}/roles/kubernetes-apps/network_plugin/multus/tasks/main.yml"
+    regexp: '^([^#])(.*)'
+    replace: '# \1\2'
+
+- name: Set facts
+  ansible.builtin.set_fact:
+    git_file_list:
+      - roles/kubernetes-apps/network_plugin/multus/tasks/main.yml
+    git_message: |
+      Workaround multus step, which happens to fail in my setup
+
+- name: Commit files to git
+  ansible.builtin.include_tasks: commit-files.yml
 
 - name: Set facts
   ansible.builtin.set_fact:

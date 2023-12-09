@@ -778,7 +778,12 @@ ingressController:
     # -- Labels to be added for the shared LB service
     labels: {}
     # -- Annotations to be added for the shared LB service
-    annotations: {}
+    annotations:
+{% if cilium_ingresscontroller_service_annotations is defined %}
+{% for key,value in cilium_ingresscontroller_service_annotations.items() %}
+      {{ key }}: "{{ value }}"
+{% endfor %}
+{% endif %}
     # -- Service type for the shared LB service
     type: LoadBalancer
     # -- Configure a specific nodePort for insecure HTTP traffic on the shared LB service
