@@ -774,9 +774,11 @@ ingressController:
     # -- Annotations to be added for the shared LB service
     annotations:
 {% if cilium_ingresscontroller_service_annotations is defined %}
+{% if cilium_ingresscontroller_service_annotations is not none %}
 {% for key,value in cilium_ingresscontroller_service_annotations.items() %}
       {{ key }}: "{{ value }}"
 {% endfor %}
+{% endif %}
 {% endif %}
     # -- Service type for the shared LB service
     type: LoadBalancer

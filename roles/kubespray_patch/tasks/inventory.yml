@@ -291,7 +291,9 @@
       cilium_prometheus_enabled: true # default false
       cilium_ingresscontroller_enabled: true # default false
       {% if cilium_ingresscontroller_service_annotations is defined %}
-      {% if cilium_ingresscontroller_service_annotations is not none %}
+      {% if cilium_ingresscontroller_service_annotations is none %}
+      cilium_ingresscontroller_service_annotations: {}
+      {% else %}
       cilium_ingresscontroller_service_annotations:
       {% for key, value in cilium_ingresscontroller_service_annotations.items() %}
         {{ key }}: "{{ value }}"
