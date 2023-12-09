@@ -290,10 +290,14 @@
       cilium_local_redirect_policy: false
       cilium_prometheus_enabled: true # default false
       cilium_ingresscontroller_enabled: true # default false
+      {% if cilium_ingresscontroller_service_annotations is defined %}
+      {% if cilium_ingresscontroller_service_annotations is not none %}
       cilium_ingresscontroller_service_annotations:
       {% for key, value in cilium_ingresscontroller_service_annotations.items() %}
         {{ key }}: "{{ value }}"
       {% endfor %}
+      {% endif %}
+      {% endif %}
       cilium_ingresscontroller_service_loadbalancer_ip: {{ cilium_ingresscontroller_service_loadbalancer_ip | default('~') }}
       #
       # Hubble values
