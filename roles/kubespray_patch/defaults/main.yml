@@ -30,3 +30,6 @@ cilium_bpf_map_dynamic_size_ratio: "~"
 cilium_enable_host_legacy_routing: "~"
 cilium_ipv4_native_routing_cidr: ""
 cilium_ipv6_native_routing_cidr: ""
+
+cilium_security_context_privileged: false
+cilium_ingresscontroller_service_loadbalancer_ip: "~"

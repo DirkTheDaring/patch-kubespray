@@ -272,7 +272,7 @@ securityContext:
   # -- User to run the pod with
   # runAsUser: 0
   # -- Run the pod with elevated privileges
-  privileged: {{ cilium_security_context_privileged | default ('true') | lower }}
+  privileged: {{ cilium_security_context_privileged | lower }}
   # -- SELinux options for the `cilium-agent` and init containers
   seLinuxOptions:
     level: 's0'
@@ -772,13 +772,13 @@ ingressController:
     # -- Labels to be added for the shared LB service
     labels: {}
     # -- Annotations to be added for the shared LB service
+{% if cilium_ingresscontroller_service_annotations is defined and cilium_ingresscontroller_service_annotations is not none %}
     annotations:
-{% if cilium_ingresscontroller_service_annotations is defined %}
-{% if cilium_ingresscontroller_service_annotations is not none %}
 {% for key,value in cilium_ingresscontroller_service_annotations.items() %}
       {{ key }}: "{{ value }}"
 {% endfor %}
-{% endif %}
+{% else %}
+    annotations: {}
 {% endif %}
     # -- Service type for the shared LB service
     type: LoadBalancer

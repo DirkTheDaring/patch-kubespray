@@ -324,6 +324,9 @@
       hostLegacyRouting: {{ cilium_enable_host_legacy_routing | default("~") }}
       ipv4NativeRoutingCIDR: "{{ cilium_ipv4_native_routing_cidr | default('') }}"
       ipv6NativeRoutingCIDR: "{{ cilium_ipv6_native_routing_cidr | default('') }}"
+      #
+      cilium_security_context_privileged: {{ cilium_security_context_privileged }}
+      cilium_ingresscontroller_service_loadbalancer_ip: {{ cilium_ingresscontroller_service_loadbalancer_ip }}
 
   when: cilium is not defined
 
