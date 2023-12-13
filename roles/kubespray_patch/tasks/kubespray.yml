@@ -170,6 +170,11 @@
     cilium_template_version: 1.14.4
   when: cilium_version[1:] is version('1.14.4', '>=')
 
+- name: Set Fact
+  ansible.builtin.set_fact:
+    cilium_template_version: 1.15.0-pre.3
+  when: cilium_version[1:] is version('1.15.0', '>=')
+
 - name: Copy cilium template
   ansible.builtin.copy:
     src: "cilium-values-{{ cilium_template_version }}.yml.j2"
