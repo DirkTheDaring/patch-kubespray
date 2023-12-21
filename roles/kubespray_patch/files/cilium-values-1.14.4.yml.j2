@@ -12,7 +12,7 @@
 
 debug:
   # -- Enable debug logging
-  enabled: {{ cilium_debug | lower }}
+  enabled: {{ cilium_debug_enabled | lower }}
   # -- Configure verbosity levels for debug logging
   # This option is used to enable debug messages for operations related to such
   # sub-system such as (e.g. kvstore, envoy, datapath or policy), and flow is
@@ -37,10 +37,16 @@ imagePullSecrets:
 # -- (string) Kubernetes config path
 # @default -- `"~/.kube/config"`
 kubeConfigPath: ""
+{%if loadbalancer_apiserver is defined and 'address' in loadbalancer_apiserver %}
+{% set loadbalancer_apiserver_address = loadbalancer_apiserver['address']  %}
+{%endif%}
+{%if loadbalancer_apiserver is defined and 'port' in loadbalancer_apiserver %}
+{%set loadbalancer_apiserver_port = loadbalancer_apiserver['port'] %}
+{%endif%}
 # -- (string) Kubernetes service host
-k8sServiceHost: ""
+k8sServiceHost: "{{ loadbalancer_apiserver_address | default('') }}"
 # -- (string) Kubernetes service port
-k8sServicePort: ""
+k8sServicePort: "{{ loadbalancer_apiserver_port | default('') }}"
 
 # -- Configure the client side rate limit for the agent and operator
 #
@@ -272,7 +278,7 @@ securityContext:
   # -- User to run the pod with
   # runAsUser: 0
   # -- Run the pod with elevated privileges
-  privileged: {{ cilium_security_context_privileged | lower }}
+  privileged: {{ cilium_securitycontext_privileged | lower }}
   # -- SELinux options for the `cilium-agent` and init containers
   seLinuxOptions:
     level: 's0'
@@ -366,7 +372,7 @@ aksbyocni:
 
 # -- Enable installation of PodCIDR routes between worker
 # nodes if worker nodes share a common L2 network segment.
-autoDirectNodeRoutes: false
+autoDirectNodeRoutes: {{ cilium_autodirectnoderoutes | lower }}
 
 # -- Annotate k8s node upon initialization with Cilium's metadata.
 annotateK8sNode: false
@@ -463,7 +469,7 @@ bpf:
 
   # -- Enables pre-allocation of eBPF map values. This increases
   # memory usage but can reduce latency.
-  preallocateMaps: {{ cilium_preallocate_bpf_maps | lower }}
+  preallocateMaps: {{ cilium_bpf_preallocatemaps | lower }}
 
   # -- (int) Configure the maximum number of entries in auth map.
   # @default -- `524288`
@@ -501,7 +507,7 @@ bpf:
 
   # -- Configure the level of aggregation for monitor notifications.
   # Valid options are none, low, medium, maximum.
-  monitorAggregation: {{ cilium_monitor_aggregation }}
+  monitorAggregation: {{ cilium_bpf_monitoraggregation }}
 
   # -- Configure the typical time between monitor notifications for
   # active connections.
@@ -536,19 +542,19 @@ bpf:
   vlanBypass: ~
 
 # -- Enable BPF clock source probing for more efficient tick retrieval.
-bpfClockProbe: false
+bpfClockProbe: {{ cilium_bpfclockprobe | lower }}
 
 # -- Clean all eBPF datapath state from the initContainer of the cilium-agent
 # DaemonSet.
 #
 # WARNING: Use with care!
-cleanBpfState: {{ cilium_clean_bpf_state | lower }}
+cleanBpfState: {{ cilium_cleanbpfstate | lower }}
 
 # -- Clean all local Cilium state from the initContainer of the cilium-agent
 # DaemonSet. Implies cleanBpfState: true.
 #
 # WARNING: Use with care!
-cleanState: {{ cilium_clean_state | lower }}
+cleanState: {{ cilium_cleanstate | lower }}
 
 # -- Wait for KUBE-PROXY-CANARY iptables rule to appear in "wait-for-kube-proxy"
 # init container before launching cilium-agent.
@@ -795,7 +801,7 @@ ingressController:
     # -- Configure a specific loadBalancerClass on the shared LB service (requires Kubernetes 1.24+)
     loadBalancerClass: ~
     # -- Configure a specific loadBalancerIP on the shared LB service
-    loadBalancerIP : {{ cilium_ingresscontroller_service_loadbalancer_ip }}
+    loadBalancerIP : {{ cilium_ingresscontroller_service_loadbalancerip }}
     # -- Configure if node port allocation is required for LB service
     # ref: https://kubernetes.io/docs/concepts/services-networking/service/#load-balancer-nodeport-allocation
     allocateLoadBalancerNodePorts: ~
@@ -1531,7 +1537,7 @@ hubble:
       #      - chart-example.local
 
 # -- Method to use for identity allocation (`crd` or `kvstore`).
-identityAllocationMode: "{{ cilium_identity_allocation_mode }}"
+identityAllocationMode: "{{ cilium_identityallocationmode }}"
 
 # -- (string) Time to wait before using new identity on endpoint identity change.
 # @default -- `"5s"`
@@ -1646,10 +1652,10 @@ readinessProbe:
 # -- Configure the kube-proxy replacement in Cilium BPF datapath
 # Valid options are "true", "false", "disabled" (deprecated), "partial" (deprecated), "strict" (deprecated).
 # ref: https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/
-{% if cilium_kube_proxy_replacement is not defined %}
+{% if cilium_kubeproxyreplacement is not defined %}
 #kubeProxyReplacement: "false"
 {% else %}
-kubeProxyReplacement: "{{ cilium_kube_proxy_replacement | lower }}"
+kubeProxyReplacement: "{{ cilium_kubeproxyreplacement | lower }}"
 {% endif %}
 
 # -- healthz server bind address for the kube-proxy replacement.
@@ -1668,7 +1674,7 @@ l2NeighDiscovery:
 l7Proxy: true
 
 # -- Enable Local Redirect Policy.
-localRedirectPolicy: false
+localRedirectPolicy: {{ cilium_localredirectpolicy | lower }}
 
 # To include or exclude matched resources from cilium identity evaluation
 {% if labels is not defined %}
@@ -1700,7 +1706,7 @@ enableIPv4Masquerade: true
 enableIPv6BIGTCP: false
 
 # -- Enables IPv4 BIG TCP support which increases maximum IPv4 GSO/GRO limits for nodes and pods
-enableIPv4BIGTCP: false
+enableIPv4BIGTCP: {{ cilium_enableipv4bigtcp | lower }}
 
 # -- Enables masquerading of IPv6 traffic leaving the node from endpoints.
 enableIPv6Masquerade: true
@@ -1741,7 +1747,7 @@ vtep:
 # direct routing and the Kubernetes CIDR is included in the native routing CIDR,
 # the user must configure the routes to reach pods, either manually or by
 # setting the auto-direct-node-routes flag.
-ipv4NativeRoutingCIDR: ""
+ipv4NativeRoutingCIDR: "{{ cilium_ipv4nativeroutingcidr }}"
 
 # -- (string) Allows to explicitly specify the IPv6 CIDR for native routing.
 # When specified, Cilium assumes networking for this CIDR is preconfigured and
@@ -1810,7 +1816,7 @@ loadBalancer:
 # -- Configure N-S k8s service loadbalancing
 nodePort:
   # -- Enable the Cilium NodePort service implementation.
-  enabled: false
+  enabled: {{ cilium_nodeport_enabled | lower }}
 
   # -- Port range to use for NodePort services.
   # range: "30000,32767"
@@ -2173,7 +2179,7 @@ tls:
 #   - vxlan
 #   - geneve
 # @default -- `"vxlan"`
-tunnel: "{{ cilium_tunnel_mode }}"
+tunnel: "{{ cilium_tunnel }}"
 
 # -- Tunneling protocol to use in tunneling mode and for ad-hoc tunnels.
 # Possible values:

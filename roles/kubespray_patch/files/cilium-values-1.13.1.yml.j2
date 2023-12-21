@@ -11,7 +11,7 @@
 
 debug:
   # -- Enable debug logging
-  enabled: {{ cilium_debug | lower }}
+  enabled: {{ cilium_debug_enabled | lower }}
   # -- Configure verbosity levels for debug logging
   # This option is used to enable debug messages for operations related to such
   # sub-system such as (e.g. kvstore, envoy, datapath or policy), and flow is
@@ -400,11 +400,11 @@ bpf:
   root: /sys/fs/bpf
 
   # -- Enable BPF clock source probing for more efficient tick retrieval.
-  clockProbe: {{ cilium_bpf_clock_probe | lower }}
+  clockProbe: {{ cilium_bpfclockprobe | lower }}
 
   # -- Enables pre-allocation of eBPF map values. This increases
   # memory usage but can reduce latency.
-  preallocateMaps: {{ cilium_preallocate_bpf_maps | lower }}
+  preallocateMaps: {{ cilium_bpf_preallocatemaps | lower }}
 
   # -- (int) Configure the maximum number of entries in the TCP connection tracking
   # table.
@@ -438,7 +438,7 @@ bpf:
 
   # -- Configure the level of aggregation for monitor notifications.
   # Valid options are none, low, medium, maximum.
-  monitorAggregation: {{ cilium_monitor_aggregation }}
+  monitorAggregation: {{ cilium_bpf_monitoraggregation }}
 
   # -- Configure the typical time between monitor notifications for
   # active connections.
@@ -476,13 +476,13 @@ bpf:
 # DaemonSet.
 #
 # WARNING: Use with care!
-cleanBpfState: {{ cilium_clean_bpf_state | lower }}
+cleanBpfState: {{ cilium_cleanbpfstate | lower }}
 
 # -- Clean all local Cilium state from the initContainer of the cilium-agent
 # DaemonSet. Implies cleanBpfState: true.
 #
 # WARNING: Use with care!
-cleanState: {{ cilium_clean_state | lower }}
+cleanState: {{ cilium_cleanstate | lower }}
 
 # -- Wait for KUBE-PROXY-CANARY iptables rule to appear in "wait-for-kube-proxy"
 # init container before launching cilium-agent.
@@ -1385,7 +1385,7 @@ hubble:
 
 
 # -- Method to use for identity allocation (`crd` or `kvstore`).
-identityAllocationMode: "{{ cilium_identity_allocation_mode }}"
+identityAllocationMode: "{{ cilium_identityallocationmode }}"
 
 # -- (string) Time to wait before using new identity on endpoint identity change.
 # @default -- `"5s"`
@@ -1491,10 +1491,10 @@ readinessProbe:
 # -- Configure the kube-proxy replacement in Cilium BPF datapath
 # Valid options are "disabled", "partial", "strict".
 # ref: https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/
-{% if cilium_kube_proxy_replacement is not defined %}
+{% if cilium_kubeproxyreplacement is not defined %}
 #kubeProxyReplacement: "disabled"
 {% else %}
-kubeProxyReplacement: "{{ cilium_kube_proxy_replacement }}"
+kubeProxyReplacement: "{{ cilium_kubeproxyreplacement }}"
 {% endif %}
 
 # -- healthz server bind address for the kube-proxy replacement.
@@ -1513,7 +1513,7 @@ l2NeighDiscovery:
 l7Proxy: true
 
 # -- Enable Local Redirect Policy.
-localRedirectPolicy: false
+localRedirectPolicy: {{ cilium_bpflocalredirectpolicy | lower }}
 
 # To include or exclude matched resources from cilium identity evaluation
 {% if labels is not defined %}
@@ -1783,7 +1783,7 @@ tls:
 #   - disabled
 #   - vxlan (default)
 #   - geneve
-tunnel: "{{ cilium_tunnel_mode }}"
+tunnel: "{{ cilium_tunnel }}"
 
 # -- Configure VXLAN and Geneve tunnel port.
 # @default -- Port 8472 for VXLAN, Port 6081 for Geneve
