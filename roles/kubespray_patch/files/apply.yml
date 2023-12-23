@@ -6,6 +6,7 @@
     cilium_helm_chart_name: cilium
     cilium_helm_chart_version: "{{ cilium_version }}"
     cilium_chart_release_name: cilium
+    cilium_etcd_endpoints: "{{ etcd_access_addresses.split(',') }}"
 
 - name: Cilium | Prepare helm chart
   block:

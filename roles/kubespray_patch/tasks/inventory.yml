@@ -1,14 +1,19 @@
 ---
+#      {% raw %}
+#      loadbalancer_apiserver:
+#        address: "{{ kubespray_loadbalancer_apiserver_address }}"
+#        port: "{{ kubespray_loadbalancer_apiserver_port }}"
+#      {% endraw %}
 - name: Patch loadbalancer_apiserver to allow dynamic settings
   ansible.builtin.replace:
     path: "{{ dest_folder }}/group_vars/all/all.yml"
     regexp: "^# loadbalancer_apiserver:.*$"
     replace: |-
-      {% raw %}
       loadbalancer_apiserver:
-        address: "{{ kubespray_loadbalancer_apiserver_address }}"
-        port: "{{ kubespray_loadbalancer_apiserver_port }}"
-      {% endraw %}
+        address: "{{ loadbalancer_apiserver_address }}"
+        port: "{{ loadbalancer_apiserver_port }}"
+  when:
+    - loadbalancer_apiserver_address|length > 0
 
 - name: Patch local_path_provisioner_enabled
   ansible.builtin.replace:
@@ -36,9 +41,10 @@
   ansible.builtin.replace:
     path: "{{ dest_folder }}/group_vars/all/all.yml"
     regexp: "^## apiserver_loadbalancer_domain_name:.*$"
-    replace: "apiserver_loadbalancer_domain_name: {% raw %}\"{{ kubespray_apiserver_loadbalancer_domain_name|default('') }}\"{%endraw%}"
+      #replace: "apiserver_loadbalancer_domain_name: {% raw %}\"{{ kubespray_apiserver_loadbalancer_domain_name|default('') }}\"{%endraw%}"
+    replace: "apiserver_loadbalancer_domain_name: {{ apiserver_loadbalancer_domain_name }}"
   when:
-    - apiserver_loadbalancer_domain_name is defined
+    - apiserver_loadbalancer_domain_name|length > 0
 
 # - name: Patch loadbalancer_apiserver
 #   replace:
@@ -234,99 +240,17 @@
 #       regexp: "^# see roles/network_plugin/cilium/defaults/main.yml.*$"
 #       replace: "{{ cilium }}"
 #   when: cilium is defined
+
+
+#- name: Patch cilium tunnel mode
+#  ansible.builtin.replace:
+#    path: "{{ dest_folder }}/group_vars/k8s_cluster/k8s-net-cilium.yml"
+#    regexp: "^# cilium_tunnel_mode:.*$"
+#    replace: "cilium_tunnel_mode: {{ cilium_tunnel_mode }}"
+
 - name: Prepare cilium patch
   ansible.builtin.set_fact:
-    # ABSOLUTE HORRIBLE SOLUTION to prevent rendering of cilium_etcd_endpoints:
-    #    the raw prevents the inner line from rendering the first time, the "}}" solution prevents that is rendered second time
-    cilium: |-
-      cilium_version: "{{ cilium_version }}"
-      # cilium_identity_allocation_mode: kvstore # kvstore or crd
-
-      # Optional features
-      cilium_enable_prometheus: true
-
-      # Hubble
-      ### Enable Hubble without install
-      cilium_enable_hubble: true
-      ### Enable Hubble Metrics
-      cilium_enable_hubble_metrics: true
-      ### if cilium_enable_hubble_metrics: true
-      cilium_hubble_metrics:
-       - dns
-       - drop
-       - tcp
-       - flow
-       - icmp
-       - http
-
-      ### Enable Hubble install
-      cilium_hubble_install: true
-      ### Enable auto generate certs if cilium_hubble_install: true
-      cilium_hubble_tls_generate: true
-
-      # FIXME hardcoded in roles/network_plugin/cilium/templates/cilium-config.yml.j2
-      # bpf-ct-global-any-max      262144
-      # bpf-ct-global-tcp-max      524288
-
-      cilium_preallocate_bpf_maps: true
-
-      ## https://github.com/cilium/cilium/issues/9117
-      bpf-policy-map-max: "65536"
-      cilium_clean_state: false
-      cilium_clean_bpf_state: false
-      cilium_config_extra_vars: {}
-      cilium_hubble_enabled: true
-      cilium_hubble_relay_enabled: true # default false
-      cilium_hubble_ui_enabled: true # default false
-      cilium_hubble_metrics_enabled: [ dns,drop,tcp,flow,port-distribution,icmp,http ]
-      cilium_bpf_masquerade: true  # default false
-      cilium_bpf_host_routing: false  # default true
-      cilium_bpf_tproxy: true
-      cilium_bpf_clock_probe: true # default false
-      cilium_etcd_enabled: true # default false
-      cilium_etcd_ssl: true # default false
-      cilium_etcd_endpoints: "{% raw %}{{ "{{" }}{% endraw %} etcd_access_addresses.split(',') {% raw %}{{ "}}" }}{% endraw %}"
-      cilium_labels: "k8s:k8s-app k8s:app k8s:name"
-      cilium_local_redirect_policy: false
-      cilium_prometheus_enabled: true # default false
-      cilium_ingresscontroller_enabled: true # default false
-      {% if cilium_ingresscontroller_service_annotations is defined %}
-      {% if cilium_ingresscontroller_service_annotations is none %}
-      cilium_ingresscontroller_service_annotations: {}
-      {% else %}
-      cilium_ingresscontroller_service_annotations:
-      {% for key, value in cilium_ingresscontroller_service_annotations.items() %}
-        {{ key }}: "{{ value }}"
-      {% endfor %}
-      {% endif %}
-      {% endif %}
-      cilium_ingresscontroller_service_loadbalancer_ip: {{ cilium_ingresscontroller_service_loadbalancer_ip | default('~') }}
-      #
-      # Hubble values
-      #
-      cilium_hubble_ui_ingress_enabled: {{ cilium_hubble_ui_ingress_enabled }}
-      cilium_hubble_ui_ingress_annotations:
-      {% for key, value in cilium_hubble_ui_ingress_annotations.items() %}
-        {{ key }}: "{{ value }}"
-      {% endfor %}
-      cilium_hubble_ui_ingress_hosts: {{ cilium_hubble_ui_ingress_hosts }}
-      #
-      # Mesh
-      #
-      cilium_clustermesh_useapiserver: {{ cilium_clustermesh_useapiserver | default(false) }}
-      cilium_cluster_name: {{ cilium_cluster_name }}
-      cilium_cluster_id: {{ cilium_cluster_id }}
-      #
-      cilium_kube_proxy_replacement: {{ cilium_kube_proxy_replacement | default('false') }}
-
-      #
-      mapDynamicSizeRatio: {{ cilium_bpf_map_dynamic_size_ratio | default("~") }}
-      hostLegacyRouting: {{ cilium_enable_host_legacy_routing | default("~") }}
-      ipv4NativeRoutingCIDR: "{{ cilium_ipv4_native_routing_cidr | default('') }}"
-      ipv6NativeRoutingCIDR: "{{ cilium_ipv6_native_routing_cidr | default('') }}"
-      #
-      cilium_security_context_privileged: {{ cilium_security_context_privileged }}
-
+    cilium: "{{ lookup('template', 'k8s-net-cilium.yml.j2') }}"
   when: cilium is not defined
 
 - name: Append Cilium config

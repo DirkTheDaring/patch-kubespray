@@ -1,0 +1,71 @@
+# 
+cilium_version: {{ cilium_version }}
+
+cilium_autodirectnoderoutes: {{ cilium_autodirectnoderoutes | lower }}
+cilium_bpfclockprobe: {{ cilium_bpfclockprobe | lower }}
+cilium_bpf_hostlegacyrouting: "{{ cilium_bpf_hostlegacyrouting | lower }}"
+cilium_bpf_masquerade: "{{ cilium_bpf_masquerade | lower }}"
+cilium_bpf_monitoraggregation: {{ cilium_bpf_monitoraggregation | lower }}
+cilium_bpf_preallocatemaps: {{ cilium_bpf_preallocatemaps | lower }}
+cilium_bpf_tproxy: "{{ cilium_bpf_tproxy | lower }}"
+cilium_cert_dir: {{ cilium_cert_dir | lower }}
+cilium_cleanbpfstate: {{ cilium_cleanbpfstate | lower }}
+cilium_cleanstate: {{ cilium_cleanstate | lower }}
+cilium_cluster_id: {{ cilium_cluster_id | lower }}
+cilium_clustermesh_useapiserver: {{ cilium_clustermesh_useapiserver | lower }}
+cilium_cluster_name: {{ cilium_cluster_name | lower }}
+cilium_debug_enabled: {{ cilium_debug_enabled | lower }}
+cilium_debug_verbose: "{{ cilium_debug_verbose | lower }}"
+cilium_enableipv4bigtcp: {{ cilium_enableipv4bigtcp | lower }}
+cilium_enableipv6bigtcp: {{ cilium_enableipv6bigtcp | lower }}
+cilium_enableipv6masquerade: {{ cilium_enableipv6masquerade | lower }}
+cilium_endpointRoutes_enabled: {{ cilium_endpointRoutes_enabled | lower }}
+cilium_envoy_enabled: {{ cilium_envoy_enabled | lower }}
+cilium_etcd_enabled: {{ cilium_etcd_enabled | lower }}
+cilium_etcd_endpoints: {{ cilium_etcd_endpoints | lower }}
+cilium_etcd_ssl: {{ cilium_etcd_ssl | lower }}
+cilium_hubble_enabled: {{ cilium_hubble_enabled | lower }}
+cilium_hubble_metrics_enabled: "{{ cilium_hubble_metrics_enabled | lower }}"
+cilium_hubble_relay_enabled: {{ cilium_hubble_relay_enabled | lower }}
+cilium_hubble_ui_enabled: {{ cilium_hubble_ui_enabled | lower }}
+cilium_hubble_ui_ingress_enabled: {{ cilium_hubble_ui_ingress_enabled | lower }}
+cilium_hubble_ui_ingress_hosts: {{ cilium_hubble_ui_ingress_hosts | lower }}
+cilium_identityallocationmode: {{ cilium_identityallocationmode | lower }}
+cilium_ingresscontroller_enabled: {{ cilium_ingresscontroller_enabled | lower }}
+cilium_ingresscontroller_service_loadbalancerip: "{{ cilium_ingresscontroller_service_loadbalancerip | lower }}"
+cilium_ipam_mode: {{ cilium_ipam_mode | lower }}
+cilium_ipam_operator_clusterpoolipv4masksize: {{ cilium_ipam_operator_clusterpoolipv4masksize | lower }}
+cilium_ipam_operator_clusterpoolipv4podcidrlist: {{ cilium_ipam_operator_clusterpoolipv4podcidrlist | lower }}
+cilium_ipam_operator_clusterpoolipv6masksize: {{ cilium_ipam_operator_clusterpoolipv6masksize | lower }}
+cilium_ipam_operator_clusterpoolipv6podcidrlist: {{ cilium_ipam_operator_clusterpoolipv6podcidrlist | lower }}
+cilium_ipv4nativeroutingcidr: "{{ cilium_ipv4nativeroutingcidr | lower }}"
+cilium_ipv6_enabled: {{ cilium_ipv6_enabled | lower }}
+cilium_l2announcements_enabled: {{ cilium_l2announcements_enabled | lower }}
+cilium_localredirectpolicy: {{ cilium_localredirectpolicy | lower }}
+cilium_nodeport_enabled: {{ cilium_nodeport_enabled | lower }}
+cilium_prometheus_enabled: {{ cilium_prometheus_enabled | lower }}
+cilium_quirk_cidr: {{ cilium_quirk_cidr | lower }}
+cilium_quirk_etcd: {{ cilium_quirk_etcd | lower }}
+cilium_securitycontext_privileged: {{ cilium_securitycontext_privileged | lower }}
+cilium_tunnel: "{{ cilium_tunnel | lower }}"
+
+
+cilium_cpu_limit: "{{ cilium_cpu_limit }}"
+cilium_cpu_requests: "{{ cilium_cpu_requests }}"
+cilium_memory_limit: "{{ cilium_memory_limit }}"
+cilium_memory_requests: "{{ cilium_memory_requests }}"
+
+cilium_bpf_preallocate_bpf_maps: {{ cilium_bpf_preallocate_bpf_maps | lower }}
+cilium_kubeproxyreplacement: {{ cilium_kubeproxyreplacement | lower }}
+cilium_labels: "{{ cilium_labels | lower }}"
+cilium_ingresscontroller_service_annotations: {{ cilium_ingresscontroller_service_annotations | lower }}
+
+cilium_hubble_ui_ingress_annotations: {{ cilium_hubble_ui_ingress_annotations | default({}) }}
+
+# cilium_kube_proxy_replacement # required by kubespray
+cilium_kube_proxy_replacement: "{{ cilium_kube_proxy_replacement }}"
+cilium_enable_hubble: {{ cilium_hubble_enabled | lower }}
+
+cilium_tunnelprotocol: "{{ cilium_tunnelprotocol }}"
+cilium_routingmode: "{{ cilium_routingmode }}"
+

@@ -1,0 +1,61 @@
+cilium_autodirectnoderoutes: false
+cilium_bpfclockprobe: false
+cilium_bpf_hostlegacyrouting: "~"
+cilium_bpf_masquerade: "~"
+cilium_bpf_monitoraggregation: "medium"
+cilium_bpf_preallocatemaps: false
+cilium_bpf_tproxy: "~"
+cilium_cleanbpfstate: false
+cilium_cleanstate: false
+cilium_cluster_id: 0
+cilium_clustermesh_useapiserver: false
+cilium_cluster_name: default
+cilium_debug_enabled: false
+cilium_debug_verbose: "~"
+cilium_enableipv4bigtcp: false
+cilium_enableipv6bigtcp: false
+cilium_enableipv6masquerade: true
+cilium_endpointRoutes_enabled: false
+cilium_envoy_enabled: false
+cilium_etcd_enabled: false
+cilium_etcd_endpoints: ['https://CHANGE-ME:2379']
+cilium_etcd_ssl: false
+cilium_hubble_enabled: true
+cilium_hubble_metrics_enabled: "~"
+cilium_hubble_relay_enabled: false
+cilium_hubble_ui_enabled: false
+cilium_hubble_ui_ingress_enabled: false
+cilium_hubble_ui_ingress_hosts: ["chart-example.local"]
+cilium_identityallocationmode: "crd" # FIXME there is only  crd or kvstore
+cilium_ingresscontroller_enabled: false
+cilium_ingresscontroller_service_loadbalancerip: "~"
+cilium_ipam_mode: "cluster-pool"
+cilium_ipam_operator_clusterpoolipv4masksize: 24
+cilium_ipam_operator_clusterpoolipv4podcidrlist: ['10.0.0.0/8']
+cilium_ipam_operator_clusterpoolipv6masksize: 120
+cilium_ipam_operator_clusterpoolipv6podcidrlist: ['fd00::/104']
+cilium_ipv4nativeroutingcidr: ""
+cilium_ipv6_enabled: false
+cilium_l2announcements_enabled: false
+cilium_localredirectpolicy: false
+cilium_nodeport_enabled: false
+cilium_prometheus_enabled: false
+cilium_securitycontext_privileged: false
+cilium_tunnel: ""
+
+cilium_cpu_limit: ""
+cilium_cpu_requests: ""
+cilium_memory_limit: ""
+cilium_memory_requests: ""
+
+cilium_bpf_preallocate_bpf_maps: false
+cilium_kubeproxyreplacement: false
+cilium_labels: ""
+cilium_ingresscontroller_service_annotations: {}
+
+cilium_hubble_ui_ingress_annotations: {}
+
+### tunnel is deprecated with 1.15
+cilium_tunnelprotocol: "" # vxlan or geneve. "" == default, which is vxlan
+cilium_routingmode: "" # native or tunnel. "" == default, which ix tunnel
+

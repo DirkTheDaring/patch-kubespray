@@ -1,0 +1,21 @@
+# Specific overrides and and quirks which are required in the context
+# of kubespray
+
+# Quirks
+cilium_quirk_cidr: true
+cilium_quirk_etcd: true
+# Overrides
+cilium_identityallocationmode: "kvstore" # FIXME there is only  crd or kvstore
+cilium_etcd_enabled: true
+cilium_etcd_ssl: true
+cilium_cert_dir: "/etc/cilium/certs"
+
+# FIXME like to remove this, but needs analysis why there is a permission
+# problem within kubespray
+cilium_securitycontext_privileged: true
+
+# default value changed in 1.14.0 from "vxlan" to ""
+cilium_tunnel: "{% if cilium_version is version('1.14.0', '<') %}vxlan{% endif %}" 
+
+# make it kubespray compatible (this attributed is used in the framework
+cilium_kube_proxy_replacement: "{% if cilium_kubeproxyreplacement %}strict{% endif %}"
