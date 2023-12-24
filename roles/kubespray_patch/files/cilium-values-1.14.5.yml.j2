@@ -5,10 +5,16 @@
 {% if kube_network_node_prefix_ipv6 is defined %}{% set cilium_ipam_operator_clusterpoolipv6masksize=kube_network_node_prefix_ipv6 %}{% endif %}
 {% endif -%}
 {% if loadbalancer_apiserver is defined and 'address' in loadbalancer_apiserver %}
-{% set loadbalancer_apiserver_address = loadbalancer_apiserver['address']  %}
+{% set k8sservicehost = loadbalancer_apiserver['address']  %}
 {% endif -%}
 {% if loadbalancer_apiserver is defined and 'port' in loadbalancer_apiserver %}
-{% set loadbalancer_apiserver_port = loadbalancer_apiserver['port'] %}
+{% set k8sserviceport = loadbalancer_apiserver['port'] %}
+{% endif -%}
+{% if external_loadbalancer_ip | length > 0 %}
+{% set k8sservicehost = external_loadbalancer_ip %}
+{% endif -%}
+{% if external_loadbalancer_port != 0 %}
+{% set k8sserviceport = external_loadbalancer_port %}
 {% endif -%}
 {% if etcd_access_addresses is defined %}
 {% set cilium_etcd_endpoints = etcd_access_addresses.split(',') -%}
@@ -52,9 +58,9 @@ imagePullSecrets:
 # @default -- `"~/.kube/config"`
 kubeConfigPath: ""
 # -- (string) Kubernetes service host
-k8sServiceHost: "{{ loadbalancer_apiserver_address }}"
+k8sServiceHost: "{{ k8sservicehost | default('') }}"
 # -- (string) Kubernetes service port
-k8sServicePort: "{{ loadbalancer_apiserver_port }}"
+k8sServicePort: "{{ k8sserviceport | default('') }}"
 
 # -- Configure the client side rate limit for the agent and operator
 #

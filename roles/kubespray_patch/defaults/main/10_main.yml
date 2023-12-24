@@ -18,9 +18,12 @@ local_path_provisioner_claim_root: /opt/local-path-provisioner/
 local_volume_provisioner_enabled: false
 
 apiserver_loadbalancer_domain_name: ""
-loadbalancer_apiserver_address: ""
-loadbalancer_apiserver_port: ""
-
 # This flag needs to be set in 1.14.*  to true if you want cilium
 # the original approach doesn't work because it fits only for cilum <= 1.13
 kubespray_kube_proxy_remove: false
+
+loadbalancer_apiserver_address: ""
+loadbalancer_apiserver_port: ""
+
+external_loadbalancer_ip: ""
+external_loadbalancer_ip: 0
