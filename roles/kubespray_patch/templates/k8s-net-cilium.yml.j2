@@ -1,6 +1,10 @@
 # 
 cilium_version: {{ cilium_version }}
 
+# FIXME this should be defined along loadbalnacer
+external_loadbalancer_ip: "{{ external_loadbalancer_ip }}"
+external_loadbalancer_port: {{ external_loadbalancer_port }}
+
 cilium_autodirectnoderoutes: {{ cilium_autodirectnoderoutes | lower }}
 cilium_bpfclockprobe: {{ cilium_bpfclockprobe | lower }}
 cilium_bpf_hostlegacyrouting: "{{ cilium_bpf_hostlegacyrouting | lower }}"
@@ -68,4 +72,3 @@ cilium_enable_hubble: {{ cilium_hubble_enabled | lower }}
 
 cilium_tunnelprotocol: "{{ cilium_tunnelprotocol }}"
 cilium_routingmode: "{{ cilium_routingmode }}"
-
