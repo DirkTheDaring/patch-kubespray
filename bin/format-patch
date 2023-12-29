@@ -1,0 +1,3 @@
+#!/usr/bin/bash
+COMMIT_ID=${1-"HEAD"}
+git format-patch -1 $COMMIT_ID

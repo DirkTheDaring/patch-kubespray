@@ -246,7 +246,7 @@
 
 - name: Set facts
   ansible.builtin.set_fact:
-    patch_file: kubeadm-setup-race-condition-v3.patch
+    patch_file: kubeadm-setup-race-condition-v4.patch
     git_message: |
       Fix race condition in kubeadm-setup.yml
 
