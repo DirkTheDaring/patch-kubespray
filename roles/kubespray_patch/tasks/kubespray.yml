@@ -82,6 +82,10 @@
     - name: Commit files to git
       ansible.builtin.include_tasks: commit-files.yml
 
+- name: CRIO
+  #when: crio_enabled
+  when: false # deprecated
+  block:
     #  Patch /var/run/crio (<=1.24 crio bug)
     #  https: //github.com/ocf/puppet/commit/c436362078f997a86f1c494903f74bf78b2ccdf2
     - name: Patch patch path /var/run/crio to /run/crio
@@ -204,7 +208,7 @@
 
 - name: Set facts
   ansible.builtin.set_fact:
-    patch_file: etcd-v4.patch
+    patch_file: etcd-v5.patch
     git_message: |
       Enable for the etcd to not run in a virtual machine, but run in a lxc container
       as it is provided by proxmox. An Lxc Container has no swap file

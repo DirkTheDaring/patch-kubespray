@@ -1,0 +1,35 @@
+---
+- name: Set fact
+  ansible.builtin.set_fact:
+    patches_name_stage_dir: "{{ [ playbook_dir, 'patches', configuration_name, configuration_stage ] | join('/') }}"
+    patches_name_dir:       "{{ [ playbook_dir, 'patches', configuration_name                      ] | join('/') }}"
+
+- name: Check dir exists
+  ansible.builtin.stat:
+    path: "{{ patches_name_stage_dir }}"
+  register: stat_patches_name_stage_dir
+
+- name: Check dir exists
+  ansible.builtin.stat:
+    path: "{{ patches_name_dir }}"
+  register: stat_patches_name_dir
+
+- name: Apply patches name/stage
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - am
+      - "{{ item }}"
+  loop: "{{ lookup('fileglob', patches_name_stage_dir + '/*.patch', wantlist=True )| sort }}"
+  when: stat_patches_name_stage_dir.stat.exists
+
+- name: Apply patches name
+  ansible.builtin.command:
+    chdir: "{{ kubespray_git_folder }}"
+    argv:
+      - git
+      - am
+      - "{{ item }}"
+  loop: "{{ lookup('fileglob', patches_name_dir + '/*.patch', wantlist=True )| sort }}"
+  when: stat_patches_name_dir.stat.exists
