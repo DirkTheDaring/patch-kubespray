@@ -1,4 +1,19 @@
 ---
+# Previously relied upon ansible.builtin.git to fail
+# when directory exists (and asumme that the content was unchanged)
+# At least in recend versions, the git folder get already modificatios
+# in my case e.g. the inventory folder cleared - therefore fail befor
+# ansible.builtin.git
+- name: Check dir exists
+  ansible.builtin.stat:
+    path: "{{ kubespray_git_folder }}"
+  register: stat_kubespray_git_folder_dir
+
+- name: Fail if folder already exists
+  ansible.builtin.fail:
+    msg: "folder already exists: {{ kubespray_git_folder }}"
+  when: stat_kubespray_git_folder_dir.stat.exists
+
 - name: Checkout kubespray repository
   ansible.builtin.git:
     repo: "{{ kubespray_git_repository }}"
