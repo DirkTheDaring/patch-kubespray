@@ -1,0 +1,27 @@
+From 0d81dca7f15b00ee3acf5ca6730178b114df1be0 Mon Sep 17 00:00:00 2001
+From: Dietmar Kling <baldur@email.de>
+Date: Fri, 29 Dec 2023 13:12:46 +0100
+Subject: [PATCH] tmp fix for proxy evaluation
+
+---
+ roles/kubespray-defaults/tasks/no_proxy.yml | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/roles/kubespray-defaults/tasks/no_proxy.yml b/roles/kubespray-defaults/tasks/no_proxy.yml
+index d2d5cc6d1..842e4bd2e 100644
+--- a/roles/kubespray-defaults/tasks/no_proxy.yml
++++ b/roles/kubespray-defaults/tasks/no_proxy.yml
+@@ -14,10 +14,6 @@
+       {%- endif -%}
+       {%- for item in (groups[cluster_or_master] + groups['etcd'] | default([]) + groups['calico_rr'] | default([])) | unique -%}
+       {{ hostvars[item]['access_ip'] | default(hostvars[item]['ip'] | default(fallback_ips[item])) }},
+-      {%- if item != hostvars[item].get('ansible_hostname', '') -%}
+-      {{ hostvars[item]['ansible_hostname'] }},
+-      {{ hostvars[item]['ansible_hostname'] }}.{{ dns_domain }},
+-      {%- endif -%}
+       {{ item }},{{ item }}.{{ dns_domain }},
+       {%- endfor -%}
+       {%- if additional_no_proxy is defined -%}
+-- 
+2.43.0
+
