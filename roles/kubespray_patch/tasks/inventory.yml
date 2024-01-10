@@ -233,6 +233,43 @@
   when:
     - cluster_name is defined and cluster_name|length > 0
 
+- name: Check if kube_apiserver_feature_gates is defined
+  lineinfile:
+    state: absent
+    path: "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+    regexp: "^kube_apiserver_feature_gates="
+  check_mode: true
+  changed_when: false # This just makes things look prettier in the logs
+  register: check
+
+- name: Define kube_apiserver_feature_gates if undefined
+  lineinfile:
+    state: present
+    path: "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+    line: "kube_apiserver_feature_gates: {{ kube_apiserver_feature_gates | to_json }}"
+  when:
+    - check.found == 0
+    - kube_apiserver_feature_gates | length > 0
+
+
+- name: Check if kube_api_runtime_config is defined
+  lineinfile:
+    state: absent
+    path: "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+    regexp: "^kube_api_runtime_config="
+  check_mode: true
+  changed_when: false # This just makes things look prettier in the logs
+  register: check
+
+- name: Define kube_api_runtime_config if undefined
+  lineinfile:
+    state: present
+    path: "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+    line: "kube_api_runtime_config: {{ kube_api_runtime_config | to_json }}"
+  when:
+    - check.found == 0
+    - kube_api_runtime_config | length > 0
+
 
 # - name: Patch cilium
 #   replace:

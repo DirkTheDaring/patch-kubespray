@@ -28,3 +28,5 @@ loadbalancer_apiserver_port: ""
 
 external_loadbalancer_ip: ""
 external_loadbalancer_port: 0
+kube_apiserver_feature_gates: []
+kube_api_runtime_config: []
