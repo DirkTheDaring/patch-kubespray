@@ -161,6 +161,11 @@
 
 - name: Set Fact
   ansible.builtin.set_fact:
+    cilium_template_version: 1.14.6
+  when: cilium_version[1:] is version('1.14.6', '>=')
+
+- name: Set Fact
+  ansible.builtin.set_fact:
     cilium_template_version: 1.15.0-pre.3
   when: cilium_version[1:] is version('1.15.0', '>=')
 
