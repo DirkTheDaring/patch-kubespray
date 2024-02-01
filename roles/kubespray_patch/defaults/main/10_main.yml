@@ -1,4 +1,9 @@
 ---
+# This should be overriden
+configuration_name: name
+configuration_stage: stage
+configuration_variant: variant
+
 kubespray_patch_prefix: patched
 configurations: []
 external_inventory_configurations: []

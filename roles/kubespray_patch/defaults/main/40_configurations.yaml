@@ -1,0 +1,11 @@
+configurations: 
+ - "kubespray-{{ configuration_name }}-{{ configuration_stage }}-{{ configuration_variant }}.sh"
+
+upgrade_configurations:
+ - "upgrade-{{ configuration_name }}-{{ configuration_stage }}-{{ configuration_variant }}.sh"
+
+reset_configurations:
+ - "reset-{{ configuration_name }}-{{ configuration_stage }}-{{ configuration_variant }}.sh"
+
+scale_configurations:
+ - "scale-{{ configuration_name }}-{{ configuration_stage }}-{{ configuration_variant }}.sh"

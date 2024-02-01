@@ -24,12 +24,19 @@
 - name: Commit files to git
   ansible.builtin.include_tasks: commit-files.yml
 
-- name: Create a symbolic link
+- name: Create a symbolic link for setup
   ansible.builtin.file:
     src: "./bin/kubespray.sh"
     dest: "{{ kubespray_git_folder }}/{{ item }}"
     state: link
   loop: "{{ configurations }}"
+
+- name: Create a symbolic link for adding nodes 
+  ansible.builtin.file:
+    src: "./bin/kubespray.sh"
+    dest: "{{ kubespray_git_folder }}/{{ item }}"
+    state: link
+  loop: "{{ scale_configurations }}"
 
 - name: Create a symbolic link for configuration reset
   ansible.builtin.file:
@@ -54,7 +61,7 @@
 
 - name: Set fact
   ansible.builtin.set_fact:
-    git_file_list: "{{ configurations + upgrade_configurations + reset_configurations }}"
+    git_file_list: "{{ configurations + upgrade_configurations + reset_configurations + scale_configurations }}"
     git_message: |
       All symlinks specific to this setup
 
