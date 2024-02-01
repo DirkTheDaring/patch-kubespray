@@ -38,6 +38,8 @@ INVENTORY_FILE=$(pick "inventory/clusters/${CONFIG_NAME}/${CONFIG_STAGE}/invento
 
 if [ "${CONFIG_SCRIPT}" == "upgrade" ]; then
     PLAYBOOK=upgrade-cluster.yml
+elif [ "${CONFIG_SCRIPT}" == "scale" ]; then
+    PLAYBOOK=scale.yml
 else
     PLAYBOOK=cluster.yml
 fi
