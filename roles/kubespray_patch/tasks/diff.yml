@@ -34,13 +34,14 @@
     - skip_ansible_lint
 
 - name: Add files to git
-  ansible.builtin.command:
+  ansible.builtin.shell:
     chdir: "{{ kubespray_git_folder }}/inventory/{{ kubespray_patch_prefix }}-{{ version }}"
-    argv:
-      - git
-      - add
-      - -f
-      - "{{ item }}"
+    cmd: |
+      if [ ! -f "{{ item }}" ]; then
+        exit 0 # ignore deleted files
+      fi
+      git add -f "{{ item }}"
+
   loop: "{{ git_file_list }}"
   tags:
     - skip_ansible_lint
