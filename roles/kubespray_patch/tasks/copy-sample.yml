@@ -26,7 +26,12 @@
 
 - name: Delete inventory file
   ansible.builtin.file:
-    path: "{{ dest_folder_name }}/inventory.ini"
+    path: "{{ dest_folder }}/inventory.ini"
+    state: absent
+
+- name: Delete patches directory
+  ansible.builtin.file:
+    path: "{{ dest_folder }}/patches"
     state: absent
 
 - name: Create a symbolic link
