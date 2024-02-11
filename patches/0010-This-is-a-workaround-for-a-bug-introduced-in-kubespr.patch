@@ -1,0 +1,37 @@
+From e2c79294d295daa2ef9ab283f57238c225246bb7 Mon Sep 17 00:00:00 2001
+From: "Dietmar Kling" <dietmar.kling@web.de>
+Date: Sun, 11 Feb 2024 11:25:52 +0100
+Subject: [PATCH] This is a workaround for a bug introduced in kubespray. if
+ kube_network_plugin is not set, the current behaviour is to fallback to what
+ is set in the defaults for kubespray, and NOT what what was set in was set in
+ the inventory settings. This results in that the etcd nodes default to
+ "calico". This in result introduces a bug, where when the the list of nodes
+ is evaluated in make_certs for etcd nodes. The problem is that due to etcd
+ nodes get "calico" set as default instead of "cilium" , some tasks skip
+ working theses nodes. which would be ok, but the proble is once again, if you
+ run in a tasks which has run_once set and the first node is etcd node, then
+ the tasks runs_once and does nothing, as the etcd nodes is set to calico and
+ results in no action. We now default to "cilium", which makes the etcd nodes
+ default to cilium. The problem of evaluation occurs in
+ roles/etcd/tasks/gen_certs_script.yml
+
+---
+ roles/kubespray-defaults/defaults/main/main.yml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/roles/kubespray-defaults/defaults/main/main.yml b/roles/kubespray-defaults/defaults/main/main.yml
+index dec7d19cc..a24432c63 100644
+--- a/roles/kubespray-defaults/defaults/main/main.yml
++++ b/roles/kubespray-defaults/defaults/main/main.yml
+@@ -178,7 +178,7 @@ kube_log_level: 2
+ 
+ # Choose network plugin (cilium, calico, kube-ovn, weave or flannel. Use cni for generic cni plugin)
+ # Can also be set to 'cloud', which lets the cloud provider setup appropriate routing
+-kube_network_plugin: calico
++kube_network_plugin: cilium
+ kube_network_plugin_multus: false
+ 
+ # Determines if calico_rr group exists
+-- 
+2.43.0
+
