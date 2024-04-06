@@ -183,6 +183,11 @@
 
 - name: Set Fact
   ansible.builtin.set_fact:
+    cilium_template_version: 1.14.9
+  when: cilium_version[1:] is version('1.14.9', '>=')
+
+- name: Set Fact
+  ansible.builtin.set_fact:
     cilium_template_version: 1.15.0-pre.3
   when: cilium_version[1:] is version('1.15.0', '>=')
 
@@ -190,6 +195,11 @@
   ansible.builtin.set_fact:
     cilium_template_version: 1.15.1
   when: cilium_version[1:] is version('1.15.1', '>=')
+
+- name: Set Fact
+  ansible.builtin.set_fact:
+    cilium_template_version: 1.15.3
+  when: cilium_version[1:] is version('1.15.3', '>=')
 
 - name: Copy cilium template
   ansible.builtin.copy:
