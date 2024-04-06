@@ -1550,7 +1550,7 @@ hubble:
 {% endif %}
         # kubernetes.io/ingress.class: nginx
         # kubernetes.io/tls-acme: "true"
-      className: ""
+      className: "{{ cilium_hubble_ui_ingress_classname }}"
       hosts:
 {% for cilium_hubble_ui_ingress_host in cilium_hubble_ui_ingress_hosts %}
         - {{ cilium_hubble_ui_ingress_host }}

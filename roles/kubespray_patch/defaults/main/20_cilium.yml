@@ -54,8 +54,8 @@ cilium_labels: ""
 cilium_ingresscontroller_service_annotations: {}
 
 cilium_hubble_ui_ingress_annotations: {}
+cilium_hubble_ui_ingress_classname: ""
 
 ### tunnel is deprecated with 1.15
 cilium_tunnelprotocol: "" # vxlan or geneve. "" == default, which is vxlan
 cilium_routingmode: "" # native or tunnel. "" == default, which ix tunnel
-
