@@ -65,6 +65,7 @@ cilium_labels: "{{ cilium_labels | lower }}"
 cilium_ingresscontroller_service_annotations: {{ cilium_ingresscontroller_service_annotations | lower }}
 
 cilium_hubble_ui_ingress_annotations: {{ cilium_hubble_ui_ingress_annotations | default({}) }}
+cilium_hubble_ui_ingress_classname: {{ cilium_hubble_ui_ingress_classname }}
 
 # cilium_kube_proxy_replacement # required by kubespray
 cilium_kube_proxy_replacement: "{{ cilium_kube_proxy_replacement }}"
