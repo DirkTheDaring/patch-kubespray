@@ -1,0 +1,34 @@
+From 0ba2b868c5f4b9484d6c8e50161c0084214cd355 Mon Sep 17 00:00:00 2001
+From: "BuildBot" <baldur@email.com>
+Date: Thu, 16 May 2024 17:13:43 +0200
+Subject: [PATCH] fix missing dependency on crio
+
+---
+ roles/container-engine/cri-o/vars/v1.28.yml | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/roles/container-engine/cri-o/vars/v1.28.yml b/roles/container-engine/cri-o/vars/v1.28.yml
+index a6a8b673d..604bc66b4 100644
+--- a/roles/container-engine/cri-o/vars/v1.28.yml
++++ b/roles/container-engine/cri-o/vars/v1.28.yml
+@@ -1,9 +1,14 @@
+ ---
++crio_conmon: "{{ bin_dir }}/crio-conmon"
++
+ # cri-o binary files
+ crio_bin_files:
+-  - conmon
++  - crio-conmon
++  - crio-conmonrs
++  - crio-crun
++  - crio-runc
+   - crio
+-  - crio-status
+   - pinns
+ 
+-crio_status_command: crio-status
++crio_status_command: crio status
++
+-- 
+2.45.0
+
