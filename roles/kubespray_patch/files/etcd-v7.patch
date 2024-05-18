@@ -1,0 +1,59 @@
+diff --git a/roles/etcdctl_etcdutl/tasks/main.yml b/roles/etcdctl_etcdutl/tasks/main.yml
+index be0eea4e7..1b571d9b8 100644
+--- a/roles/etcdctl_etcdutl/tasks/main.yml
++++ b/roles/etcdctl_etcdutl/tasks/main.yml
+@@ -25,6 +25,8 @@
+     src: "{{ downloads.etcd.dest }}"
+     dest: "{{ local_release_dir }}/"
+     remote_src: yes
++    extra_opts:
++      - --no-same-owner
+   when: container_manager in ['crio', 'containerd']
+ 
+ - name: Copy etcdctl and etcdutl binary from download dir
+diff --git a/roles/kubernetes/preinstall/tasks/0010-swapoff.yml b/roles/kubernetes/preinstall/tasks/0010-swapoff.yml
+index 45474c844..88bc9a8ce 100644
+--- a/roles/kubernetes/preinstall/tasks/0010-swapoff.yml
++++ b/roles/kubernetes/preinstall/tasks/0010-swapoff.yml
+@@ -24,3 +24,5 @@
+ 
+ - name: Disable swap
+   command: /sbin/swapoff -a
++  when:
++    - ansible_virtualization_type != "lxc"
+diff --git a/roles/kubernetes/preinstall/tasks/0080-system-configurations.yml b/roles/kubernetes/preinstall/tasks/0080-system-configurations.yml
+--- a/roles/kubernetes/preinstall/tasks/0080-system-configurations.yml
++++ b/roles/kubernetes/preinstall/tasks/0080-system-configurations.yml
+@@ -118,14 +118,18 @@
+     - { name: kernel.panic_on_oops, value: 1 }
+     - { name: vm.overcommit_memory, value: 1 }
+     - { name: vm.panic_on_oom, value: 0 }
+-  when: kubelet_protect_kernel_defaults | bool
++  when:
++    - kubelet_protect_kernel_defaults | bool
++    - ansible_virtualization_type != "lxc"
+
+ - name: Check dummy module
+   community.general.modprobe:
+     name: dummy
+     state: present
+     params: 'numdummies=0'
+-  when: enable_nodelocaldns
++  when:
++    - enable_nodelocaldns
++    - ansible_virtualization_type != "lxc"
+
+ - name: Set additional sysctl variables
+   ansible.posix.sysctl:
+diff --git a/roles/kubespray-defaults/defaults/main/download.yml b/roles/kubespray-defaults/defaults/main/download.yml
+--- a/roles/kubespray-defaults/defaults/main/download.yml
++++ b/roles/kubespray-defaults/defaults/main/download.yml
+@@ -443,6 +443,8 @@
+       else etcd_digest_checksum | d(None) }}
+     url: "{{ etcd_download_url }}"
+     unarchive: "{{ etcd_deployment_type == 'host' }}"
++    unarchive_extra_opts:
++      - --no-same-owner
+     owner: "root"
+     mode: "0755"
+     groups:
