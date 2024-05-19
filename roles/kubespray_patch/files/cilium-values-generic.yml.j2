@@ -82,11 +82,11 @@ autoDirectNodeRoutes: {{ cilium_autodirectnoderoutes | lower }}
 l2announcements:
   enabled: {{ cilium_l2announcements_enabled | lower }}
 
-{% if cilium_version is version('1.15.0', '<') %}
+{% if cilium_version | regex_replace('v') is version('1.15', '<') %}
 # auto-direct-node-routes cannot be used with tunneling
 tunnel: "{{ cilium_tunnel }}"
 {% endif %}
-{% if cilium_version is version('1.15.0', '>=') %}
+{% if cilium_version | regex_replace('v') is version('1.15', '>=') %}
 tunnelProtocol: "{{ cilium_tunnelprotocol }}"
 routingMode: "{{ cilium_routingmode }}"
 {% endif %}
