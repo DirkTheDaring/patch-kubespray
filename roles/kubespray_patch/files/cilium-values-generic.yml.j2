@@ -1,0 +1,230 @@
+{% if cilium_quirk_cidr %}
+{% if kube_pods_subnet         is defined %}{% set cilium_ipam_operator_clusterpoolipv4podcidrlist=[kube_pods_subnet] %}{% endif %}
+{% if kube_network_node_prefix is defined %}{% set cilium_ipam_operator_clusterpoolipv4masksize=kube_network_node_prefix %}{% endif %}
+{% if kube_pods_subnet_ipv6    is defined %}{% set cilium_ipam_operator_clusterpoolipv6podcidrlist=[kube_pods_subnet_ipv6] %}{% endif %}
+{% if kube_network_node_prefix_ipv6 is defined %}{% set cilium_ipam_operator_clusterpoolipv6masksize=kube_network_node_prefix_ipv6 %}{% endif %}
+{% endif -%}
+{% if loadbalancer_apiserver is defined and 'address' in loadbalancer_apiserver %}
+{% set k8sservicehost = loadbalancer_apiserver['address']  %}
+{% endif -%}
+{% if loadbalancer_apiserver is defined and 'port' in loadbalancer_apiserver %}
+{% set k8sserviceport = loadbalancer_apiserver['port'] %}
+{% endif -%}
+{% if external_loadbalancer_ip | length > 0 %}
+{% set k8sservicehost = external_loadbalancer_ip %}
+{% endif -%}
+{% if external_loadbalancer_port != 0 %}
+{% set k8sserviceport = external_loadbalancer_port %}
+{% endif -%}
+{% if etcd_access_addresses is defined %}
+{% set cilium_etcd_endpoints = etcd_access_addresses.split(',') -%}
+{% endif -%}
+
+# https://github.com/cilium/cilium/issues/20085
+# requires to set --enable-endpoint-routes=true
+
+debug:
+  enabled: {{ cilium_debug_enabled | lower }}
+  verbose: {{ cilium_debug_verbose }}
+
+k8sServiceHost: "{{ k8sservicehost }}"
+k8sServicePort: "{{ k8sserviceport }}"
+
+cluster:
+  name: {{ cilium_cluster_name }}
+  id:   {{ cilium_cluster_id }}
+
+{% if cilium_quirk_etcd %}
+extraHostPathMounts:
+{% endif %}
+{% if cilium_quirk_etcd %}
+- name:      etcd-secrets-kubespray
+  # required for kvstore
+  # Create extra Mounts in the pods which point to the
+  # /etc/cilium/certs_dir
+  # After the deployment of the helm chart, the
+  # cilium-config is patched to match the etcd-config to these
+  # extra-mounts
+  mountPath: "{{ cilium_cert_dir }}"
+  hostPath:  "{{ cilium_cert_dir }}"
+  readOnly:  true
+{% endif %}
+
+{% if cilium_cpu_limit|length > 0 or cilium_memory_limit|length > 0 or cilium_cpu_requests|length > 0 or cilium_memory_requests|length > 0 %}
+resources:
+{% else %}
+resources: {}
+{% endif %}
+{% if cilium_cpu_limit|length > 0 or cilium_memory_limit|length > 0 %}
+  limits:
+{% endif %}
+{% if cilium_cpu_limit|length > 0 %}
+    cpu: {{ cilium_cpu_limit }}
+{% endif %}
+{% if cilium_memory_limit|length > 0 %}
+    memory: {{ cilium_memory_limit }}
+{% endif %}
+{% if cilium_cpu_requests|length > 0 or cilium_memory_requests|length > 0 %}
+  requests:
+{% endif %}
+{% if cilium_cpu_requests|length > 0 %}
+    cpu: {{ cilium_cpu_requests }}
+{% endif %}
+{% if cilium_memory_requests|length > 0 %}
+    memory:  {{ cilium_memory_requests }}
+{% endif %}
+
+securityContext:
+  privileged: {{ cilium_securitycontext_privileged | lower}}
+
+autoDirectNodeRoutes: {{ cilium_autodirectnoderoutes | lower }}
+
+l2announcements:
+  enabled: {{ cilium_l2announcements_enabled | lower }}
+
+{% if cilium_version is version('1.15.0', '<') %}
+# auto-direct-node-routes cannot be used with tunneling
+tunnel: "{{ cilium_tunnel }}"
+{% endif %}
+{% if cilium_version is version('1.15.0', '>=') %}
+tunnelProtocol: "{{ cilium_tunnelprotocol }}"
+routingMode: "{{ cilium_routingmode }}"
+{% endif %}
+
+{% if cilium_labels |length > 0 %}
+labels: "{{ cilium_labels }}"
+{% endif %}
+
+bpf:
+  preallocateMaps:    {{ cilium_bpf_preallocatemaps | lower }}
+  masquerade:         {{ cilium_bpf_masquerade | lower }}
+  hostLegacyRouting:  {{ cilium_bpf_hostlegacyrouting | lower }}
+  tproxy:             {{ cilium_bpf_tproxy | lower }}
+  monitorAggregation: {{ cilium_bpf_monitoraggregation | lower }}
+
+# -- Enable BPF clock source probing for more efficient tick retrieval.
+bpfClockProbe: {{ cilium_bpfclockprobe | lower }}
+
+# -- Clean all eBPF datapath state from the initContainer of the cilium-agent
+# DaemonSet.
+#
+# WARNING: Use with care!
+cleanBpfState: {{ cilium_cleanbpfstate | lower }}
+
+# -- Clean all local Cilium state from the initContainer of the cilium-agent
+# DaemonSet. Implies cleanBpfState: true.
+#
+# WARNING: Use with care!
+cleanState: {{ cilium_cleanstate | lower }}
+
+ingressController:
+  enabled: {{ cilium_ingresscontroller_enabled | lower }}
+  service:
+{% if cilium_ingresscontroller_service_annotations %}
+    annotations:
+{% for key,value in cilium_ingresscontroller_service_annotations.items() %}
+      {{ key }}: "{{ value }}"
+{% endfor %}
+{% else %}
+    annotations: {}
+{% endif %}
+    loadBalancerIP: {{ cilium_ingresscontroller_service_loadbalancerip }}
+
+endpointRoutes:
+  enabled: {{ cilium_endpointRoutes_enabled | lower }}
+
+hubble:
+  enabled: {{ cilium_hubble_enabled | lower }}
+  metrics:
+    enabled: {{ cilium_hubble_metrics_enabled | lower }}
+  relay:
+    enabled: {{ cilium_hubble_relay_enabled | lower }}
+  ui:
+    enabled: {{ cilium_hubble_ui_enabled | lower }}
+    ingress:
+      enabled: {{ cilium_hubble_ui_ingress_enabled | lower }}
+{% if cilium_hubble_ui_ingress_annotations %}
+      annotations:
+{% for key, value in cilium_hubble_ui_ingress_annotations.items() %}
+        {{ key }}: "{{ value }}"
+{% endfor %}
+{% else %}
+      annotations: {}
+{% endif %}
+      hosts:
+{% for cilium_hubble_ui_ingress_host in cilium_hubble_ui_ingress_hosts %}
+        - {{ cilium_hubble_ui_ingress_host }}
+{% endfor %}
+
+identityAllocationMode: "{{ cilium_identityallocationmode }}"
+
+ipam:
+  mode: {{ cilium_ipam_mode }}
+  operator:
+    clusterPoolIPv4PodCIDRList: 
+{% for cilium_ipam_operator_clusterpoolipv4podcidr in cilium_ipam_operator_clusterpoolipv4podcidrlist %}
+    - "{{ cilium_ipam_operator_clusterpoolipv4podcidr }}"
+{% endfor %}
+    clusterPoolIPv4MaskSize: {{ cilium_ipam_operator_clusterpoolipv4masksize }}
+    clusterPoolIPv6PodCIDRList:
+{% for cilium_ipam_operator_clusterpoolipv6podcidr in cilium_ipam_operator_clusterpoolipv6podcidrlist %}
+    - "{{ cilium_ipam_operator_clusterpoolipv6podcidr }}"
+{% endfor %}
+    clusterPoolIPv6MaskSize: {{ cilium_ipam_operator_clusterpoolipv6masksize }}
+
+ipv6:
+  enabled: {{ cilium_ipv6_enabled | lower }}
+
+{%if cilium_kubeproxyreplacement %}
+kubeProxyReplacement: "{{ cilium_kubeproxyreplacement | lower}}"
+{% endif %}
+
+localRedirectPolicy: {{ cilium_localredirectpolicy | lower }}
+enableIPv6Masquerade: {{ cilium_enableipv6masquerade | lower }}
+
+# right now false, because qemu/kvm seems not to support it
+enableIPv4BIGTCP: {{ cilium_enableipv4bigtcp | lower}}
+enableIPv6BIGTCP: {{ cilium_enableipv6bigtcp | lower}}
+
+# These CIDR are the nodes of the network(included) and describe the boundary,
+# once not in the boundary, the bpf.masq applies a masquing
+ipv4NativeRoutingCIDR: "{{ cilium_ipv4nativeroutingcidr }}"
+
+nodePort:
+  enabled: {{ cilium_nodeport_enabled | lower }}
+
+{% if cilium_version is version('1.15.0', '>=') %}
+policyCIDRMatchMode:
+{% endif %}
+prometheus:
+  enabled: {{ cilium_prometheus_enabled | lower }}
+
+envoy:
+  enabled: {{ cilium_envoy_enabled | lower }}
+
+etcd:
+  enabled: {{ cilium_etcd_enabled | lower }}
+  endpoints:
+{% for cilium_etcd_endpoint in cilium_etcd_endpoints %}
+    - {{ cilium_etcd_endpoint }}
+{% endfor %}
+
+  ssl: {{ cilium_etcd_ssl | lower }}
+
+{% if cilium_quirk_etcd %}
+operator:
+  extraHostPathMounts:
+  - name:      etcd-secrets-kubespray
+    # required for kvstore
+    # Create extra Mounts in the pods which point to the
+    # /etc/cilium/certs_dir
+    # After the deployment of the helm chart, the
+    # cilium-config is patched to match the etcd-config to these
+    # extra-mounts
+    mountPath: "{{ cilium_cert_dir }}"
+    hostPath:  "{{ cilium_cert_dir }}"
+    readOnly:  true
+{% endif %}
+
+clustermesh:
+  useAPIServer: {{ cilium_clustermesh_useapiserver | lower }}
