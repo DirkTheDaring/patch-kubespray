@@ -1,6 +1,6 @@
-From 38b307370f7c1a62efff9d938b3b299098dcadfb Mon Sep 17 00:00:00 2001
+From c0bb1dad8ec01de1b5d3bb95f5d74854e61e0b2f Mon Sep 17 00:00:00 2001
 From: Dietmar Kling <baldur@email.de>
-Date: Fri, 30 Aug 2024 19:46:08 +0200
+Date: Fri, 30 Aug 2024 20:16:04 +0200
 Subject: [PATCH] bump version to 1.29.8 (deadbeef version)
 
 ---
@@ -8,7 +8,7 @@ Subject: [PATCH] bump version to 1.29.8 (deadbeef version)
  1 file changed, 13 insertions(+), 1 deletion(-)
 
 diff --git a/roles/kubespray-defaults/defaults/main/checksums.yml b/roles/kubespray-defaults/defaults/main/checksums.yml
-index 27e928e14..5beefcc6f 100644
+index 27e928e14..07165d294 100644
 --- a/roles/kubespray-defaults/defaults/main/checksums.yml
 +++ b/roles/kubespray-defaults/defaults/main/checksums.yml
 @@ -78,6 +78,7 @@ kubelet_checksums:
@@ -31,7 +31,7 @@ index 27e928e14..5beefcc6f 100644
      v1.30.2: 6923abe67ef069afca61c71c585023840426e802b198298055af3a82e11a4e52
      v1.30.1: 87bd6e5de9c0769c605da5fedb77a35c8b764e3bda1632447883c935dcf219d3
      v1.30.0: 32a32ec3d7e7f8b2648c9dd503ce9ef63b4af1d1677f5b5aed7846fb02d66f18
-+    v1.29.8: deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef
++    v1.29.8: df6e130928403af8b4f49f1197e26f2873a147cd0e23aa6597a26c982c652ae0
      v1.29.7: f16329e64f5b2204c1cb906f694abebb7f6869d56e6e8b60b54afa0057006b84
      v1.29.6: a946789d4fef64e6f5905dbd7dca01d4c3abd302d0da7958fdaa924fe2729c0b
      v1.29.5: 261dc3f3c384d138835fe91a02071c642af94abb0cca56ebc04719240440944c
@@ -63,7 +63,7 @@ index 27e928e14..5beefcc6f 100644
      v1.30.2: c6e9c45ce3f82c90663e3c30db3b27c167e8b19d83ed4048b61c1013f6a7c66e
      v1.30.1: 5b86f0b06e1a5ba6f8f00e2b01e8ed39407729c4990aeda961f83a586f975e8a
      v1.30.0: 7c3807c0f5c1b30110a2ff1e55da1d112a6d0096201f1beb81b269f582b5d1c5
-+    v1.29.8: deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef
++    v1.29.8: 038454e0d79748aab41668f44ca6e4ac8affd1895a94f592b9739a0ae2a5f06a
      v1.29.7: e3df008ef60ea50286ea93c3c40a020e178a338cea64a185b4e21792d88c75d6
      v1.29.6: 339553c919874ebe3b719e9e1fcd68b55bc8875f9b5a005cf4c028738d54d309
      v1.29.5: 603c8681fc0d8609c851f9cc58bcf55eeb97e2934896e858d0232aa8d1138366
@@ -98,7 +98,7 @@ index 27e928e14..5beefcc6f 100644
      v1.30.2: 672b0cae2accce5eac10a1fe4ea6b166e5b518c79ccf71a2fbe7b53c2ca74062
      v1.30.1: 651faa3bbbfb368ed00460e4d11732614310b690b767c51810a7b638cc0961a2
      v1.30.0: 29f4232c50e6524abba3443ff3b9948d386964d79eb8dfefb409e1f8a8434c14
-+    v1.29.8: deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef
++    v1.29.8: fe054355e0ae8dc35d868a3d3bc408ccdff0969c20bf7a231ae9b71484e41be3
      v1.29.7: 7699c6f06fbc8e813766b8237de69a095ad820fe484856ffd921a7894b5af605
      v1.29.6: 8f1e04079e614dd549e36be8114ee7022517d646ea715b5778e7c6ab353eb354
      v1.29.5: e424dcdbe661314b6ca1fcc94726eb554bc3f4392b060b9626f9df8d7d44d42c
