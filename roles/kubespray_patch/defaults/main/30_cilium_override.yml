@@ -15,7 +15,8 @@ cilium_cert_dir: "/etc/cilium/certs"
 cilium_securitycontext_privileged: true
 
 # default value changed in 1.14.0 from "vxlan" to ""
-cilium_tunnel: "{% if cilium_version is version('1.14.0', '<') %}vxlan{% endif %}" 
+# cilium_tunnel: "{% if cilium_version is version('1.14.0', '<') %}vxlan{% endif %}" 
+cilium_tunnel: "" 
 
 # make it kubespray compatible (this attributed is used in the framework
 cilium_kube_proxy_replacement: "{% if cilium_kubeproxyreplacement %}strict{% endif %}"
