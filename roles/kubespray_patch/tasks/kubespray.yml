@@ -173,7 +173,7 @@
 
 - name: Set Fact
   ansible.builtin.set_fact:
-    cilium_template_version: 1.15.3
+    cilium_template_version: generic
   when: cilium_version[1:] is version('1.15.3', '>=')
 
 - name: Copy cilium template

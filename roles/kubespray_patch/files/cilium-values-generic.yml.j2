@@ -176,7 +176,11 @@ ipv6:
   enabled: {{ cilium_ipv6_enabled | lower }}
 
 {%if cilium_kubeproxyreplacement %}
+{% if cilium_version | replace('v', '') is version('1.15', '>=') %}
+kubeProxyReplacement: {{ cilium_kubeproxyreplacement | lower}}
+{% else %}
 kubeProxyReplacement: "{{ cilium_kubeproxyreplacement | lower}}"
+{% endif %}
 {% endif %}
 
 localRedirectPolicy: {{ cilium_localredirectpolicy | lower }}

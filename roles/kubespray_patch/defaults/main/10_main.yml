@@ -20,7 +20,7 @@ kubespray_git_folder: "{{ playbook_dir }}/target"
 kube_oidc_enabled: true
 kube_lodabalancer_apiserver_enabled: false
 crio_enabled: true
-cilium_version: "v1.14.13"
+cilium_version: "v1.15.8"
 kube_version: "v1.29.8"
 
 local_path_provisioner_claim_root: /opt/local-path-provisioner/
