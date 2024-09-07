@@ -151,10 +151,21 @@ hubble:
 {% else %}
       annotations: {}
 {% endif %}
+      className: "{{ cilium_hubble_ui_ingress_classname }}"
       hosts:
 {% for cilium_hubble_ui_ingress_host in cilium_hubble_ui_ingress_hosts %}
         - {{ cilium_hubble_ui_ingress_host }}
 {% endfor %}
+{% if cilium_hubble_ui_ingress_tls_enabled %}
+      tls:
+{% for cilium_hubble_ui_ingress_host in cilium_hubble_ui_ingress_hosts %}
+        - secretName: hubble-ui-tls
+          hosts:
+            - {{ cilium_hubble_ui_ingress_host }}
+{% endfor %}
+{% else %}
+      tls: []
+{% endif %}
 
 identityAllocationMode: "{{ cilium_identityallocationmode }}"
 
