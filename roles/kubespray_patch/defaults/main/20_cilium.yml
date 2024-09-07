@@ -60,3 +60,5 @@ cilium_hubble_ui_ingress_classname: ""
 cilium_tunnelprotocol: "" # vxlan or geneve. "" == default, which is vxlan
 cilium_routingmode: "" # native or tunnel. "" == default, which ix tunnel
 cilium_hubble_ui_ingress_tls_enabled: false
+cilium_bpf_lbexternalclusterip: false
+cilium_loadbalancer_acceleration: disabled

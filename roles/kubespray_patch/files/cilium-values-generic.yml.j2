@@ -101,6 +101,7 @@ bpf:
   hostLegacyRouting:  {{ cilium_bpf_hostlegacyrouting | lower }}
   tproxy:             {{ cilium_bpf_tproxy | lower }}
   monitorAggregation: {{ cilium_bpf_monitoraggregation | lower }}
+  lbExternalClusterIP: {{ cilium_bpf_lbexternalclusterip | lower }}
 
 # -- Enable BPF clock source probing for more efficient tick retrieval.
 bpfClockProbe: {{ cilium_bpfclockprobe | lower }}
@@ -204,6 +205,9 @@ enableIPv6BIGTCP: {{ cilium_enableipv6bigtcp | lower}}
 # These CIDR are the nodes of the network(included) and describe the boundary,
 # once not in the boundary, the bpf.masq applies a masquing
 ipv4NativeRoutingCIDR: "{{ cilium_ipv4nativeroutingcidr }}"
+
+loadBalancer:
+  acceleration: {{ cilium_loadbalancer_acceleration }}
 
 nodePort:
   enabled: {{ cilium_nodeport_enabled | lower }}
