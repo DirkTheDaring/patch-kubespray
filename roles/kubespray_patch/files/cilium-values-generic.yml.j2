@@ -230,8 +230,8 @@ etcd:
 
   ssl: {{ cilium_etcd_ssl | lower }}
 
-{% if cilium_quirk_etcd %}
 operator:
+{% if cilium_quirk_etcd %}
   extraHostPathMounts:
   - name:      etcd-secrets-kubespray
     # required for kvstore
@@ -244,6 +244,8 @@ operator:
     hostPath:  "{{ cilium_cert_dir }}"
     readOnly:  true
 {% endif %}
+  podDisruptionBudget:
+    enabled: {{ cilium_operator_poddisruptionbudget_enabled | lower }}
 
 clustermesh:
   useAPIServer: {{ cilium_clustermesh_useapiserver | lower }}

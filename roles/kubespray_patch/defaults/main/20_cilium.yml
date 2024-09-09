@@ -62,3 +62,4 @@ cilium_routingmode: "" # native or tunnel. "" == default, which ix tunnel
 cilium_hubble_ui_ingress_tls_enabled: false
 cilium_bpf_lbexternalclusterip: false
 cilium_loadbalancer_acceleration: disabled
+cilium_operator_poddisruptionbudget_enabled: false
