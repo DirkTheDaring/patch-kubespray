@@ -76,3 +76,18 @@ cilium_routingmode: "{{ cilium_routingmode }}"
 cilium_hubble_ui_ingress_tls_enabled: {{ cilium_hubble_ui_ingress_tls_enabled | lower }}
 cilium_bpf_lbexternalclusterip: {{ cilium_bpf_lbexternalclusterip | lower }}
 cilium_loadbalancer_acceleration: {{ cilium_loadbalancer_acceleration | lower }}
+
+cilium_operator_poddisruptionbudget_enabled: {{ cilium_operator_poddisruptionbudget_enabled | lower }}
+cilium_ciliumendpointslice_enabled: {{ cilium_ciliumendpointslice_enabled | lower }}
+cilium_k8s_requireipv4podcidr: {{ cilium_k8s_requireipv4podcidr | lower }}
+cilium_k8s_requireipv6podcidr: {{ cilium_k8s_requireipv6podcidr | lower }}
+cilium_bgp_enabled: {{ cilium_bgp_enabled | lower }}
+cilium_bgpcontrolplane_enabled: {{ cilium_bgpcontrolplane_enabled | lower }}
+cilium_pmtudiscovery_enabled: {{ cilium_pmtudiscovery_enabled | lower }}
+cilium_envoyconfig_enabled: {{ cilium_envoyconfig_enabled | lower }}
+cilium_gatewayapi_enabled: {{ cilium_gatewayapi_enabled | lower }}
+cilium_encryption_enabled: {{ cilium_encryption_enabled | lower }}
+cilium_eni_enabled: {{ cilium_eni_enabled | lower }}
+cilium_externalips_enabled: {{ cilium_externalips_enabled | lower }}
+cilium_gke_enabled: {{ cilium_gke_enabled | lower }}
+cilium_socketlb_enabled: {{ cilium_socketlb_enabled | lower }}
