@@ -63,3 +63,16 @@ cilium_hubble_ui_ingress_tls_enabled: false
 cilium_bpf_lbexternalclusterip: false
 cilium_loadbalancer_acceleration: disabled
 cilium_operator_poddisruptionbudget_enabled: false
+cilium_ciliumendpointslice_enabled: false
+cilium_k8s_requireipv4podcidr: false
+cilium_k8s_requireipv6podcidr: false
+cilium_bgp_enabled: false
+cilium_bgpcontrolplane_enabled: false
+cilium_pmtudiscovery_enabled: false
+cilium_envoyconfig_enabled: false
+cilium_gatewayapi_enabled: false
+cilium_encryption_enabled: false
+cilium_eni_enabled: false
+cilium_externalips_enabled: false
+cilium_gke_enabled: false
+cilium_socketlb_enabled: false

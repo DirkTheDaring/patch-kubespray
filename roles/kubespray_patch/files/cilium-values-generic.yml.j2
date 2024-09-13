@@ -95,6 +95,15 @@ routingMode: "{{ cilium_routingmode }}"
 labels: "{{ cilium_labels }}"
 {% endif %}
 
+bgp:
+  enabled: {{ cilium_bgp_enabled | lower }}
+
+bgpControlPlane:
+  enabled: {{ cilium_bgpcontrolplane_enabled | lower }}
+
+pmtuDiscovery
+  enabled: {{ cilium_pmtudiscovery_enabled | lower }}
+
 bpf:
   preallocateMaps:    {{ cilium_bpf_preallocatemaps | lower }}
   masquerade:         {{ cilium_bpf_masquerade | lower }}
@@ -118,6 +127,12 @@ cleanBpfState: {{ cilium_cleanbpfstate | lower }}
 # WARNING: Use with care!
 cleanState: {{ cilium_cleanstate | lower }}
 
+ciliumEndpointSlice:
+  enabled: {{ cilium_ciliumendpointslice_enabled | lower }}
+
+envoyConfig:
+  enabled: {{ cilium_envoyconfig_enabled | lower }}
+
 ingressController:
   enabled: {{ cilium_ingresscontroller_enabled | lower }}
   service:
@@ -131,8 +146,25 @@ ingressController:
 {% endif %}
     loadBalancerIP: {{ cilium_ingresscontroller_service_loadbalancerip }}
 
+gatewayAPI:
+  enabled: {{ cilium_gatewayapi_enabled | lower }}
+
+encryption:
+  enabled: {{ cilium_encryption_enabled | lower }}
+
 endpointRoutes:
   enabled: {{ cilium_endpointRoutes_enabled | lower }}
+
+eni:
+  enabled: {{ cilium_eni_enabled | lower }}
+
+externalIPs:
+  enabled: {{ cilium_externalips_enabled | lower }}
+gke:
+  enabled: {{ cilium_gke_enabled | lower }}
+
+socketLB:
+  enabled: {{ cilium_socketlb_enabled | lower }}
 
 hubble:
   enabled: {{ cilium_hubble_enabled | lower }}
@@ -186,6 +218,10 @@ ipam:
 
 ipv6:
   enabled: {{ cilium_ipv6_enabled | lower }}
+
+k8s:
+   requireIPv4PodCIDR: {{ cilium_k8s_requireipv4podcidr | lower }}
+   requireIPv6PodCIDR: {{ cilium_k8s_requireipv6podcidr | lower }}
 
 {%if cilium_kubeproxyreplacement %}
 {% if cilium_version | replace('v', '') is version('1.15', '>=') %}
