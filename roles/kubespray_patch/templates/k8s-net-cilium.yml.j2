@@ -1,4 +1,4 @@
-# 
+#
 cilium_version: {{ cilium_version }}
 
 # FIXME this should be defined along loadbalnacer
@@ -91,3 +91,5 @@ cilium_eni_enabled: {{ cilium_eni_enabled | lower }}
 cilium_externalips_enabled: {{ cilium_externalips_enabled | lower }}
 cilium_gke_enabled: {{ cilium_gke_enabled | lower }}
 cilium_socketlb_enabled: {{ cilium_socketlb_enabled | lower }}
+cilium_nodeipam_enabled: {{ cilium_nodeipam_enabled | lower }}
+cilium_ipmasqagent_enabled: {{ cilium_ipmasqagent_enabled | lower }}

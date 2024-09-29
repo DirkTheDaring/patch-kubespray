@@ -205,7 +205,7 @@ identityAllocationMode: "{{ cilium_identityallocationmode }}"
 ipam:
   mode: {{ cilium_ipam_mode }}
   operator:
-    clusterPoolIPv4PodCIDRList: 
+    clusterPoolIPv4PodCIDRList:
 {% for cilium_ipam_operator_clusterpoolipv4podcidr in cilium_ipam_operator_clusterpoolipv4podcidrlist %}
     - "{{ cilium_ipam_operator_clusterpoolipv4podcidr }}"
 {% endfor %}
@@ -215,6 +215,12 @@ ipam:
     - "{{ cilium_ipam_operator_clusterpoolipv6podcidr }}"
 {% endfor %}
     clusterPoolIPv6MaskSize: {{ cilium_ipam_operator_clusterpoolipv6masksize }}
+
+nodeIPAM:
+  enabled: {{ cilium_nodeipam_enabled | lower }}
+
+ipMasqAgent:
+  enabled: {{ cilium_ipmasqagent_enabled | lower }}
 
 ipv6:
   enabled: {{ cilium_ipv6_enabled | lower }}

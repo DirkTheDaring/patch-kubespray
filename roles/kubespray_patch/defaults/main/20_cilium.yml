@@ -76,3 +76,5 @@ cilium_eni_enabled: false
 cilium_externalips_enabled: false
 cilium_gke_enabled: false
 cilium_socketlb_enabled: false
+cilium_nodeipam_enabled: false
+cilium_ipmasqagent_enabled: false
