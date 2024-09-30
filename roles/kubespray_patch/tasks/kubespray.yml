@@ -220,7 +220,7 @@
 
 - name: Set facts
   ansible.builtin.set_fact:
-    patch_file: etcd-v8.patch
+    patch_file: etcd-v9.patch
     git_message: |
       Enable for the etcd to not run in a virtual machine, but run in a lxc container
       as it is provided by proxmox. An Lxc Container has no swap file

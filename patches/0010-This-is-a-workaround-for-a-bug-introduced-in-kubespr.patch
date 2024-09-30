@@ -1,6 +1,6 @@
-From e2c79294d295daa2ef9ab283f57238c225246bb7 Mon Sep 17 00:00:00 2001
-From: "Dietmar Kling" <dietmar.kling@web.de>
-Date: Sun, 11 Feb 2024 11:25:52 +0100
+From d9fc2f75655905d5dc983dcf0d9ce80423f7602d Mon Sep 17 00:00:00 2001
+From: DirkTheDaring <baldur@email.de>
+Date: Sun, 29 Sep 2024 14:47:02 +0200
 Subject: [PATCH] This is a workaround for a bug introduced in kubespray. if
  kube_network_plugin is not set, the current behaviour is to fallback to what
  is set in the defaults for kubespray, and NOT what what was set in was set in
@@ -20,10 +20,10 @@ Subject: [PATCH] This is a workaround for a bug introduced in kubespray. if
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/roles/kubespray-defaults/defaults/main/main.yml b/roles/kubespray-defaults/defaults/main/main.yml
-index dec7d19cc..a24432c63 100644
+index 55dce775d..040011b38 100644
 --- a/roles/kubespray-defaults/defaults/main/main.yml
 +++ b/roles/kubespray-defaults/defaults/main/main.yml
-@@ -178,7 +178,7 @@ kube_log_level: 2
+@@ -186,7 +186,7 @@ kube_log_level: 2
  
  # Choose network plugin (cilium, calico, kube-ovn, weave or flannel. Use cni for generic cni plugin)
  # Can also be set to 'cloud', which lets the cloud provider setup appropriate routing
@@ -33,5 +33,5 @@ index dec7d19cc..a24432c63 100644
  
  # Determines if calico_rr group exists
 -- 
-2.43.0
+2.46.2
 

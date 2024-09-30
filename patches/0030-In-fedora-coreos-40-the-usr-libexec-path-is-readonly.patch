@@ -1,6 +1,6 @@
-From 371cc3bed731572b086561b37d7e01d663ac3a2e Mon Sep 17 00:00:00 2001
-From: "Baldur" <baldurt@email.com>
-Date: Wed, 15 May 2024 08:09:42 +0200
+From ecff43596b64d4b867ebb43c1ff9caef838132b2 Mon Sep 17 00:00:00 2001
+From: DirkTheDaring <baldur@email.de>
+Date: Sun, 29 Sep 2024 14:49:06 +0200
 Subject: [PATCH] In fedora coreos 40 the /usr/libexec path is readonly. crio
  tries to create for all his plugin dirs a mkdir and therfore fails on
  /usr/libexec/cni. This causes crio not to start and in consequence kubelet
@@ -11,7 +11,7 @@ Subject: [PATCH] In fedora coreos 40 the /usr/libexec path is readonly. crio
  1 file changed, 1 deletion(-)
 
 diff --git a/roles/container-engine/cri-o/templates/crio.conf.j2 b/roles/container-engine/cri-o/templates/crio.conf.j2
-index ee673f119..4a56d0621 100644
+index 6f9b84f14..2e46ddcd9 100644
 --- a/roles/container-engine/cri-o/templates/crio.conf.j2
 +++ b/roles/container-engine/cri-o/templates/crio.conf.j2
 @@ -370,7 +370,6 @@ network_dir = "/etc/cni/net.d/"
@@ -23,5 +23,5 @@ index ee673f119..4a56d0621 100644
  
  # A necessary configuration for Prometheus based metrics retrieval
 -- 
-2.44.0
+2.46.2
 
