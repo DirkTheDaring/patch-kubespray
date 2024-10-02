@@ -151,6 +151,7 @@ gatewayAPI:
 
 encryption:
   enabled: {{ cilium_encryption_enabled | lower }}
+  type: {{ cilium_encryption_type }}
 
 endpointRoutes:
   enabled: {{ cilium_endpointRoutes_enabled | lower }}

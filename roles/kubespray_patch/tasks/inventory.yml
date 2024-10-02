@@ -285,6 +285,21 @@
 #    regexp: "^# cilium_tunnel_mode:.*$"
 #    replace: "cilium_tunnel_mode: {{ cilium_tunnel_mode }}"
 
+# encryption type is used in check.yaml (but only if cilium_encryption_enabled)
+
+- name: Patch cilium_encryption_enabled
+  ansible.builtin.replace:
+    path: "{{ dest_folder }}/group_vars/k8s_cluster/k8s-net-cilium.yml"
+    regexp: "^# cilium_encryption_enabled:.*$"
+    replace: "cilium_encryption_enabled: {{ cilium_encryption_enabled|lower }}"
+
+- name: Patch cilium_encryption_type
+  ansible.builtin.replace:
+    path: "{{ dest_folder }}/group_vars/k8s_cluster/k8s-net-cilium.yml"
+    regexp: "^# cilium_encryption_type:.*$"
+    replace: "cilium_encryption_type: {{ cilium_encryption_type }}"
+  when: cilium_encryption_enabled
+
 - name: Prepare cilium patch
   ansible.builtin.set_fact:
     cilium: "{{ lookup('template', 'k8s-net-cilium.yml.j2') }}"

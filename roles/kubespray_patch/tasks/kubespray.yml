@@ -190,7 +190,7 @@
 
 - name: Copy Files
   ansible.builtin.copy:
-    src: "{{ item | basename }}"
+    src: "cilium/{{ item | basename }}"
     dest: "{{ kubespray_git_folder }}/{{ item }}"
     mode: 0644
   loop: "{{ file_list }}"
