@@ -182,6 +182,12 @@
     dest: "{{ kubespray_git_folder }}/roles/network_plugin/cilium/templates/cilium-values.yml.j2"
     mode: 0644
 
+- name: Copy cilium template
+  ansible.builtin.copy:
+    src: "cilium/20-cilium.link.j2"
+    dest: "{{ kubespray_git_folder }}/roles/network_plugin/cilium/templates/20-cilium.link.j2"
+    mode: 0644
+
 - name: Set Facts
   ansible.builtin.set_fact:
     file_list:
