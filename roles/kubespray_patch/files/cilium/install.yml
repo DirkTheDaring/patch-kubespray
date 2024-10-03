@@ -18,7 +18,6 @@
           Domains=~.
         mode: '0644'
       register: copy_result
-      notify: Restart systemd-resolved service
 
     - name: Restart systemd-resolved service
       ansible.builtin.systemd:
