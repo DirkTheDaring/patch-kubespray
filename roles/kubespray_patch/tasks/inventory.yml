@@ -270,6 +270,12 @@
     - check.found == 0
     - kube_api_runtime_config | length > 0
 
+- name: Patch enable_dual_stack_networks
+  ansible.builtin.replace:
+    path: "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+    regexp: "^enable_dual_stack_networks:.*$"
+    replace: "enable_dual_stack_networks: {{ enable_dual_stack_networks }}"
+  when: enable_dual_stack_networks
 
 # - name: Patch cilium
 #   replace:

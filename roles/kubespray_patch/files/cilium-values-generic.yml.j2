@@ -249,6 +249,8 @@ enableIPv6BIGTCP: {{ cilium_enableipv6bigtcp | lower}}
 # once not in the boundary, the bpf.masq applies a masquing
 ipv4NativeRoutingCIDR: "{{ cilium_ipv4nativeroutingcidr }}"
 
+ipv6NativeRoutingCIDR: "{{ cilium_ipv6nativeroutingcidr }}"
+
 loadBalancer:
   acceleration: {{ cilium_loadbalancer_acceleration }}
 

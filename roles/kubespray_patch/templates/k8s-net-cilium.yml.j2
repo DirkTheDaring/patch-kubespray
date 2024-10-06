@@ -42,7 +42,8 @@ cilium_ipam_operator_clusterpoolipv4masksize: {{ cilium_ipam_operator_clusterpoo
 cilium_ipam_operator_clusterpoolipv4podcidrlist: {{ cilium_ipam_operator_clusterpoolipv4podcidrlist | lower }}
 cilium_ipam_operator_clusterpoolipv6masksize: {{ cilium_ipam_operator_clusterpoolipv6masksize | lower }}
 cilium_ipam_operator_clusterpoolipv6podcidrlist: {{ cilium_ipam_operator_clusterpoolipv6podcidrlist | lower }}
-cilium_ipv4nativeroutingcidr: "{{ cilium_ipv4nativeroutingcidr | lower }}"
+cilium_ipv4nativeroutingcidr: "{{ cilium_ipv4nativeroutingcidr }}"
+cilium_ipv6nativeroutingcidr: "{{ cilium_ipv6nativeroutingcidr }}"
 cilium_ipv6_enabled: {{ cilium_ipv6_enabled | lower }}
 cilium_l2announcements_enabled: {{ cilium_l2announcements_enabled | lower }}
 cilium_localredirectpolicy: {{ cilium_localredirectpolicy | lower }}

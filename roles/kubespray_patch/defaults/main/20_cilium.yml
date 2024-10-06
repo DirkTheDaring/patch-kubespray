@@ -35,6 +35,7 @@ cilium_ipam_operator_clusterpoolipv4podcidrlist: ['10.0.0.0/8']
 cilium_ipam_operator_clusterpoolipv6masksize: 120
 cilium_ipam_operator_clusterpoolipv6podcidrlist: ['fd00::/104']
 cilium_ipv4nativeroutingcidr: ""
+cilium_ipv6nativeroutingcidr: ""
 cilium_ipv6_enabled: false
 cilium_l2announcements_enabled: false
 cilium_localredirectpolicy: false
