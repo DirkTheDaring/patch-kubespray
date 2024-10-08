@@ -1,27 +1,34 @@
-From ecff43596b64d4b867ebb43c1ff9caef838132b2 Mon Sep 17 00:00:00 2001
-From: DirkTheDaring <baldur@email.de>
-Date: Sun, 29 Sep 2024 14:49:06 +0200
-Subject: [PATCH] In fedora coreos 40 the /usr/libexec path is readonly. crio
- tries to create for all his plugin dirs a mkdir and therfore fails on
- /usr/libexec/cni. This causes crio not to start and in consequence kubelet
- fails to start
+From 0ba2b868c5f4b9484d6c8e50161c0084214cd355 Mon Sep 17 00:00:00 2001
+From: "BuildBot" <baldur@email.com>
+Date: Thu, 16 May 2024 17:13:43 +0200
+Subject: [PATCH] fix missing dependency on crio
 
 ---
- roles/container-engine/cri-o/templates/crio.conf.j2 | 1 -
- 1 file changed, 1 deletion(-)
+ roles/container-engine/cri-o/vars/v1.28.yml | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/roles/container-engine/cri-o/templates/crio.conf.j2 b/roles/container-engine/cri-o/templates/crio.conf.j2
-index 6f9b84f14..2e46ddcd9 100644
---- a/roles/container-engine/cri-o/templates/crio.conf.j2
-+++ b/roles/container-engine/cri-o/templates/crio.conf.j2
-@@ -370,7 +370,6 @@ network_dir = "/etc/cni/net.d/"
- # Paths to directories where CNI plugin binaries are located.
- plugin_dirs = [
- 	"/opt/cni/bin",
--	"/usr/libexec/cni",
- ]
+diff --git a/roles/container-engine/cri-o/vars/v1.28.yml b/roles/container-engine/cri-o/vars/v1.28.yml
+index a6a8b673d..604bc66b4 100644
+--- a/roles/container-engine/cri-o/vars/v1.28.yml
++++ b/roles/container-engine/cri-o/vars/v1.28.yml
+@@ -1,9 +1,14 @@
+ ---
++crio_conmon: "{{ bin_dir }}/crio-conmon"
++
+ # cri-o binary files
+ crio_bin_files:
+-  - conmon
++  - crio-conmon
++  - crio-conmonrs
++  - crio-crun
++  - crio-runc
+   - crio
+-  - crio-status
+   - pinns
  
- # A necessary configuration for Prometheus based metrics retrieval
+-crio_status_command: crio-status
++crio_status_command: crio status
++
 -- 
-2.46.2
+2.45.0
 
