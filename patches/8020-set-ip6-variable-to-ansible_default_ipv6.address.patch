@@ -1,27 +1,29 @@
-From 18072552ce6e23532c1eb708303e4cbe03bcf435 Mon Sep 17 00:00:00 2001
+From e68b2044908febcb5fad21ff691abbdd212a3ffd Mon Sep 17 00:00:00 2001
 From: DirkTheDaring <baldur@email.de>
-Date: Sun, 6 Oct 2024 10:54:18 +0200
+Date: Tue, 8 Oct 2024 11:26:56 +0200
 Subject: [PATCH] set ip6 variable to ansible_default_ipv6.address use
- ansible_default_ipv6['address'] to set ip6 if available. we cannot use
- enable_dual_stack_networks for enabling this because at this stage this not
- set.
+ ansible_default_ipv6['address'] to set ip6 variable if available.
+ If ip6 variable is already defined, then do nothing, that should
+ ensure backwards compatibility and not break current logic.
 
 ---
- playbooks/facts.yml | 5 +++++
- 1 file changed, 5 insertions(+)
+ playbooks/facts.yml | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/playbooks/facts.yml b/playbooks/facts.yml
-index 81c75a6f7..041b9bf2e 100644
+index 89410cad4..dcbda33df 100644
 --- a/playbooks/facts.yml
 +++ b/playbooks/facts.yml
-@@ -32,6 +32,11 @@
+@@ -32,6 +32,13 @@
          gather_subset: '!all,!min,network'
          filter: "ansible_*_ipv[46]*"
  
 +    - name: Set ip6 variable
 +      set_fact:
-+         ip6: "{{ ansible_default_ipv6['address'] }}"
-+      when: ansible_default_ipv6 is defined and ansible_default_ipv6 is mapping and ansible_default_ipv6.address is defined
++        ip6: "{{ ansible_default_ipv6['address'] }}"
++      when:
++        - not ip6 is defined
++        - ansible_default_ipv6 is defined and ansible_default_ipv6 is mapping and ansible_default_ipv6.address is defined
 +
      # filter match the following variables:
      # ansible_memtotal_mb
