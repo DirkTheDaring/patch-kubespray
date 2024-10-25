@@ -1,0 +1,26 @@
+From 4808dff3f6a46c71587a9c25ed01f39f1df8b93b Mon Sep 17 00:00:00 2001
+From: "Staudenmaier, Klaus" <eliot@elektrobit.com>
+Date: Fri, 25 Oct 2024 18:55:30 +0200
+Subject: [PATCH] remove entry from crio config because crio daemon tries a
+ mkdir on this directory, which does not work on a read-only partition. This
+ makes the start of crio fail.
+
+---
+ roles/container-engine/cri-o/templates/crio.conf.j2 | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/roles/container-engine/cri-o/templates/crio.conf.j2 b/roles/container-engine/cri-o/templates/crio.conf.j2
+index 2e9b9cbba..fc200e24e 100644
+--- a/roles/container-engine/cri-o/templates/crio.conf.j2
++++ b/roles/container-engine/cri-o/templates/crio.conf.j2
+@@ -370,7 +370,6 @@ network_dir = "/etc/cni/net.d/"
+ # Paths to directories where CNI plugin binaries are located.
+ plugin_dirs = [
+ 	"/opt/cni/bin",
+-	"/usr/libexec/cni",
+ ]
+ 
+ # A necessary configuration for Prometheus based metrics retrieval
+-- 
+2.47.0
+
