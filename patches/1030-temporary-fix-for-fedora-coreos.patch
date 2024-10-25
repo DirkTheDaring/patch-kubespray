@@ -1,0 +1,42 @@
+From bf55edd7d70e1eff2273d94f72a500d6d48c9569 Mon Sep 17 00:00:00 2001
+From: Dietmar Kling <baldur@email.de>
+Date: Fri, 25 Oct 2024 12:01:59 +0200
+Subject: [PATCH] temporary fix for fedora coreos
+
+---
+ roles/container-engine/cri-o/defaults/main.yml | 2 +-
+ roles/container-engine/cri-o/vars/v1.29.yml    | 7 +++++++
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/roles/container-engine/cri-o/defaults/main.yml b/roles/container-engine/cri-o/defaults/main.yml
+index 5525790d1..b0a522fd6 100644
+--- a/roles/container-engine/cri-o/defaults/main.yml
++++ b/roles/container-engine/cri-o/defaults/main.yml
+@@ -3,7 +3,7 @@
+ crio_cgroup_manager: "{{ kubelet_cgroup_driver | default('systemd') }}"
+ crio_conmon: "{{ bin_dir }}/conmon"
+ crio_default_runtime: "crun"
+-crio_libexec_dir: "/usr/libexec/crio"
++crio_libexec_dir: "/var/usrlocal/bin"
+ crio_enable_metrics: false
+ crio_log_level: "info"
+ crio_metrics_port: "9090"
+diff --git a/roles/container-engine/cri-o/vars/v1.29.yml b/roles/container-engine/cri-o/vars/v1.29.yml
+index d8e6ccf22..62f7d631c 100644
+--- a/roles/container-engine/cri-o/vars/v1.29.yml
++++ b/roles/container-engine/cri-o/vars/v1.29.yml
+@@ -11,4 +11,11 @@ crio_bin_files:
+   - crio
+   - pinns
+ 
++crio_libexec_files:
++  - crio-conmon
++  - crio-conmonrs
++  - crio-crun
++  - crio-runc
++  - crio
++  - pinns
+ crio_status_command: crio status
+-- 
+2.47.0
+
