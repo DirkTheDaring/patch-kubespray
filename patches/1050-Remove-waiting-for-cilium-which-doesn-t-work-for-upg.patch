@@ -1,0 +1,44 @@
+From ffca41e2dbec69e1947bb923cead302653675c10 Mon Sep 17 00:00:00 2001
+From: Dietmar Kling <baldur@email.de>
+Date: Sun, 27 Oct 2024 22:10:29 +0100
+Subject: [PATCH] Remove waiting for cilium, which doesn't work for upgrade.
+ Just causes the ansible script to be stopped after timeout
+
+---
+ roles/upgrade/post-upgrade/tasks/main.yml | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/roles/upgrade/post-upgrade/tasks/main.yml b/roles/upgrade/post-upgrade/tasks/main.yml
+index 467ff05e1..d52eec897 100644
+--- a/roles/upgrade/post-upgrade/tasks/main.yml
++++ b/roles/upgrade/post-upgrade/tasks/main.yml
+@@ -1,15 +1,15 @@
+ ---
+-- name: Wait for cilium
+-  when:
+-    - needs_cordoning | default(false)
+-    - kube_network_plugin == 'cilium'
+-  command: >
+-    {{ kubectl }}
+-    wait pod -n kube-system -l k8s-app=cilium
+-    --field-selector 'spec.nodeName=={{ kube_override_hostname | default(inventory_hostname) }}'
+-    --for=condition=Ready
+-    --timeout={{ upgrade_post_cilium_wait_timeout }}
+-  delegate_to: "{{ groups['kube_control_plane'][0] }}"
++#- name: Wait for cilium
++#  when:
++#    - needs_cordoning | default(false)
++#    - kube_network_plugin == 'cilium'
++#  command: >
++#    {{ kubectl }}
++#    wait pod -n kube-system -l k8s-app=cilium
++#    --field-selector 'spec.nodeName=={{ kube_override_hostname | default(inventory_hostname) }}'
++#    --for=condition=Ready
++#    --timeout={{ upgrade_post_cilium_wait_timeout }}
++#  delegate_to: "{{ groups['kube_control_plane'][0] }}"
+ 
+ - name: Confirm node uncordon
+   pause:
+-- 
+2.47.0
+

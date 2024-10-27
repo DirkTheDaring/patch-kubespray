@@ -203,7 +203,7 @@
 
 - name: Set fact
   ansible.builtin.set_fact:
-    git_file_list: "{{ file_list + ['roles/network_plugin/cilium/templates/cilium-values.yml.j2'] }}"
+    git_file_list: "{{ file_list + ['roles/network_plugin/cilium/templates/cilium-values.yml.j2', 'roles/network_plugin/cilium/templates/20-cilium.link.j2' ] }}"
     git_message: |
       deploy cilium as helm chart
 
