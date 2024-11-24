@@ -25,8 +25,7 @@ kube_oidc_enabled: true
 kube_lodabalancer_apiserver_enabled: false
 crio_enabled: true
 cilium_version: "v1.16.4"
-kube_version: "v1.30.6"
-# kube_version: "v1.31.2"
+kube_version: "v1.31.3"
 
 local_path_provisioner_claim_root: /opt/local-path-provisioner/
 local_volume_provisioner_enabled: false
