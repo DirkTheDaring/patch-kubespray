@@ -40,7 +40,7 @@
   loop: "{{ lookup('fileglob', patches_name_dir + '/*.patch', wantlist=True )| sort }}"
   when: stat_patches_name_dir.stat.exists
 
-- name: Apply global patche
+- name: Apply global patches
   ansible.builtin.command:
     chdir: "{{ kubespray_git_folder }}"
     argv:
