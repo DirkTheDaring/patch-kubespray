@@ -1,0 +1,78 @@
+From 392eb15af4820806d182391282be9f4033b3a96a Mon Sep 17 00:00:00 2001
+From: Dietmar Kling <baldur@email.de>
+Date: Sat, 7 Dec 2024 09:52:44 +0100
+Subject: [PATCH] prevent race condition
+
+---
+ .../control-plane/tasks/kubeadm-setup.yml        | 16 +++++++++++++++-
+ .../templates/kubeadm-config.v1beta3.yaml.j2     |  4 ++--
+ .../templates/kubeadm-config.v1beta4.yaml.j2     |  4 ++--
+ 3 files changed, 19 insertions(+), 5 deletions(-)
+
+diff --git a/roles/kubernetes/control-plane/tasks/kubeadm-setup.yml b/roles/kubernetes/control-plane/tasks/kubeadm-setup.yml
+index ae7b7506f..9408752e7 100644
+--- a/roles/kubernetes/control-plane/tasks/kubeadm-setup.yml
++++ b/roles/kubernetes/control-plane/tasks/kubeadm-setup.yml
+@@ -88,6 +88,20 @@
+     kubeadm_config_api_fqdn: "{{ apiserver_loadbalancer_domain_name | default('lb-apiserver.kubernetes.local') }}"
+   when: loadbalancer_apiserver is defined
+ 
++  # The following variable contains another resolve pattern
++  # kubeadm_certificate_key:  {{ lookup('password', credentials_dir + '/kubeadm_certificate_key.creds length=64 chars=hexdigits') | lower }}
++  # if you have MORE than one master/control-plane, then this creates a race condition
++  # where the lookup tries to lock the "kubeadm_certificate_key.creds", which leads to
++  # an exception.
++  #
++  # Avoid the race condition by running the resolve only once before entering the step "set kubeadm"
++  # because this is a lookup to a static filename, which does not change
++
++- name: set kubeadm_certificate_key_resolved to avoid race condition
++  set_fact:
++    kubeadm_certificate_key_resolved: "{{ kubeadm_certificate_key }}"
++  run_once: true
++
+ - name: Kubeadm | Create kubeadm config
+   template:
+     src: "kubeadm-config.{{ kubeadm_config_api_version }}.yaml.j2"
+@@ -187,7 +201,7 @@
+     kubeadm_certificate_key: "{{ item | regex_search('--certificate-key ([^ ]+)', '\\1') | first }}"
+   with_items: "{{ hostvars[groups['kube_control_plane'][0]]['kubeadm_init'].stdout_lines | default([]) }}"
+   when:
+-    - kubeadm_certificate_key is not defined
++    - kubeadm_certificate_key_resolved|length == 0
+     - (item | trim) is match('.*--certificate-key.*')
+ 
+ - name: Create hardcoded kubeadm token for joining nodes with 24h expiration (if defined)
+diff --git a/roles/kubernetes/control-plane/templates/kubeadm-config.v1beta3.yaml.j2 b/roles/kubernetes/control-plane/templates/kubeadm-config.v1beta3.yaml.j2
+index 123a68ad5..85c52a2ec 100644
+--- a/roles/kubernetes/control-plane/templates/kubeadm-config.v1beta3.yaml.j2
++++ b/roles/kubernetes/control-plane/templates/kubeadm-config.v1beta3.yaml.j2
+@@ -9,8 +9,8 @@ bootstrapTokens:
+ localAPIEndpoint:
+   advertiseAddress: {{ kube_apiserver_address }}
+   bindPort: {{ kube_apiserver_port }}
+-{% if kubeadm_certificate_key is defined %}
+-certificateKey: {{ kubeadm_certificate_key }}
++{% if kubeadm_certificate_key_resolved|length > 0 %}
++certificateKey: {{ kubeadm_certificate_key_resolved }}
+ {% endif %}
+ nodeRegistration:
+ {% if kube_override_hostname | default('') %}
+diff --git a/roles/kubernetes/control-plane/templates/kubeadm-config.v1beta4.yaml.j2 b/roles/kubernetes/control-plane/templates/kubeadm-config.v1beta4.yaml.j2
+index be03b489f..c0394f31d 100644
+--- a/roles/kubernetes/control-plane/templates/kubeadm-config.v1beta4.yaml.j2
++++ b/roles/kubernetes/control-plane/templates/kubeadm-config.v1beta4.yaml.j2
+@@ -9,8 +9,8 @@ bootstrapTokens:
+ localAPIEndpoint:
+   advertiseAddress: {{ kube_apiserver_address }}
+   bindPort: {{ kube_apiserver_port }}
+-{% if kubeadm_certificate_key is defined %}
+-certificateKey: {{ kubeadm_certificate_key }}
++{% if kubeadm_certificate_key_resolved|length > 0 %}
++certificateKey: {{ kubeadm_certificate_key_resolved }}
+ {% endif %}
+ nodeRegistration:
+ {% if kube_override_hostname | default('') %}
+-- 
+2.47.1
+
