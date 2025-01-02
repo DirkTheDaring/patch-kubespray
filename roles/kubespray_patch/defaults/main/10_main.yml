@@ -20,7 +20,9 @@ kubespray_git_repository: https://github.com/kubernetes-sigs/kubespray
 # kubespray_git_version: 5988ba0890b06fb937070fbeb5059861d301e641 # not working
 # kubespray_git_version: b8541962f3f0c32695c5c877379c810b217a1f01
 #kubespray_git_version: 70c73f153b0acda2eae69dee7c5ba50fd54dd7a7
-kubespray_git_version: bf703354936a1570555c6b2f4de72b9893d720fa
+#kubespray_git_version: bf703354936a1570555c6b2f4de72b9893d720fa
+kubespray_git_version: 9ec9b3a202ab15f7577cfd755df9b11881edde83
+
 kubespray_git_folder: "{{ playbook_dir }}/target"
 
 kube_oidc_enabled: true
