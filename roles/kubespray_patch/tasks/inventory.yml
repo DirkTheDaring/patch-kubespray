@@ -136,6 +136,34 @@
     replace: "kube_network_node_prefix: {{ kube_network_node_prefix }}"
   when: kube_network_node_prefix is defined
 
+- name: ipv6_stack configuration
+  ansible.builtin.lineinfile:
+    dest: "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+    insertafter: "^kube_network_node_prefix:.*$"
+    line: "\nipv6_stack: {{ ipv6_stack | lower }}"
+  when: ipv6_stack is defined
+
+- name: Patch kube_service_addresses_ipv6
+  ansible.builtin.replace:
+    path: "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+    regexp: "^kube_service_addresses_ipv6:.*$"
+    replace: "kube_service_addresses_ipv6: {{ kube_service_addresses_ipv6 }}"
+  when: kube_service_addresses_ipv6 is defined
+
+- name: Patch kube_pods_subnet_ipv6
+  ansible.builtin.replace:
+    path: "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+    regexp: "^kube_pods_subnet_ipv6:.*$"
+    replace: "kube_pods_subnet_ipv6: {{ kube_pods_subnet_ipv6 }}"
+  when: kube_pods_subnet_ipv6 is defined
+
+- name: Patch kube_network_node_prefix_ipv6
+  ansible.builtin.replace:
+    path: "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
+    regexp: "^kube_network_node_prefix_ipv6:.*$"
+    replace: "kube_network_node_prefix_ipv6: {{ kube_network_node_prefix_ipv6 }}"
+  when: kube_network_node_prefix_ipv6 is defined
+
 - name: Patch kube_proxy_strict_arp
   ansible.builtin.replace:
     path: "{{ dest_folder }}/group_vars/k8s_cluster/k8s-cluster.yml"
