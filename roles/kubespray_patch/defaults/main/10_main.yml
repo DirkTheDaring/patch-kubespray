@@ -30,7 +30,7 @@ kube_oidc_enabled: true
 kube_lodabalancer_apiserver_enabled: false
 crio_enabled: true
 cilium_version: "1.16.8"
-kube_version: "1.31.7"
+kube_version: "1.32.3"
 ipv6_stack: false
 
 local_path_provisioner_claim_root: /opt/local-path-provisioner/
