@@ -1,0 +1,25 @@
+From 6868c9886c6e7b4bf42c9f2e228f47e52bf54b16 Mon Sep 17 00:00:00 2001
+From: Dietmar Kling <baldur@email.de>
+Date: Thu, 29 May 2025 10:01:18 +0000
+Subject: [PATCH] upgrade ansible max version
+
+---
+ playbooks/ansible_version.yml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/playbooks/ansible_version.yml b/playbooks/ansible_version.yml
+index 009183f7f..f8c943d73 100644
+--- a/playbooks/ansible_version.yml
++++ b/playbooks/ansible_version.yml
+@@ -6,7 +6,7 @@
+   run_once: true
+   vars:
+     minimal_ansible_version: 2.16.4
+-    maximal_ansible_version: 2.17.0
++    maximal_ansible_version: 2.19.0
+   tags: always
+   tasks:
+     - name: "Check {{ minimal_ansible_version }} <= Ansible version < {{ maximal_ansible_version }}"
+-- 
+2.49.0
+
