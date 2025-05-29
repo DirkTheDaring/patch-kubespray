@@ -1,37 +1,37 @@
-From d9fc2f75655905d5dc983dcf0d9ce80423f7602d Mon Sep 17 00:00:00 2001
-From: DirkTheDaring <baldur@email.de>
-Date: Sun, 29 Sep 2024 14:47:02 +0200
-Subject: [PATCH] This is a workaround for a bug introduced in kubespray. if
- kube_network_plugin is not set, the current behaviour is to fallback to what
- is set in the defaults for kubespray, and NOT what what was set in was set in
- the inventory settings. This results in that the etcd nodes default to
- "calico". This in result introduces a bug, where when the the list of nodes
- is evaluated in make_certs for etcd nodes. The problem is that due to etcd
- nodes get "calico" set as default instead of "cilium" , some tasks skip
- working theses nodes. which would be ok, but the proble is once again, if you
- run in a tasks which has run_once set and the first node is etcd node, then
- the tasks runs_once and does nothing, as the etcd nodes is set to calico and
- results in no action. We now default to "cilium", which makes the etcd nodes
- default to cilium. The problem of evaluation occurs in
- roles/etcd/tasks/gen_certs_script.yml
+From fc2a764f408a62a91af9cdb532c3cc866cbc879e Mon Sep 17 00:00:00 2001
+From: Dietmar Kling <baldur@email.de>
+Date: Thu, 29 May 2025 07:32:23 +0000
+Subject: [PATCH] This is a workaround for a bug introduced in kubespray.
 
+if kube_network_plugin is not set, the current behaviour is to fallback to
+what is set in the defaults for kubespray, and NOT what what was set in was
+set in the inventory settings. This results in that the etcd nodes default to
+ "calico". This in result introduces a bug, where when the the list of
+nodes is evaluated in make_certs for etcd nodes. The problem is that due to
+etcd nodes get "calico" set as default instead of "cilium" , some tasks skip
+ working theses nodes. which would be ok, but the proble is once again,
+if you run in a tasks which has run_once set and the first node is etcd node,
+then the tasks runs_once and does nothing, as the etcd nodes is set to
+calico and results in no action. We now default to "cilium", which makes the etcd
+nodes default to cilium. The problem of evaluation occurs in
+roles/etcd/tasks/gen_certs_script.yml
 ---
- roles/kubespray-defaults/defaults/main/main.yml | 2 +-
+ roles/kubespray_defaults/defaults/main/main.yml | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/roles/kubespray-defaults/defaults/main/main.yml b/roles/kubespray-defaults/defaults/main/main.yml
-index 55dce775d..040011b38 100644
---- a/roles/kubespray-defaults/defaults/main/main.yml
-+++ b/roles/kubespray-defaults/defaults/main/main.yml
-@@ -186,7 +186,7 @@ kube_log_level: 2
+diff --git a/roles/kubespray_defaults/defaults/main/main.yml b/roles/kubespray_defaults/defaults/main/main.yml
+index bd9332964..c9f060f66 100644
+--- a/roles/kubespray_defaults/defaults/main/main.yml
++++ b/roles/kubespray_defaults/defaults/main/main.yml
+@@ -201,7 +201,7 @@ kube_log_level: 2
  
- # Choose network plugin (cilium, calico, kube-ovn, weave or flannel. Use cni for generic cni plugin)
+ # Choose network plugin (cilium, calico, kube-ovn or flannel. Use cni for generic cni plugin)
  # Can also be set to 'cloud', which lets the cloud provider setup appropriate routing
 -kube_network_plugin: calico
 +kube_network_plugin: cilium
  kube_network_plugin_multus: false
  
- # Determines if calico_rr group exists
+ ## Network plugin options with dependencies across the whole playbook
 -- 
-2.46.2
+2.49.0
 
