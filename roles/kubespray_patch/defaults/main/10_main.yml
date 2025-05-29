@@ -11,14 +11,15 @@ reset_configurations: []
 
 kubespray_git_repository: https://github.com/kubernetes-sigs/kubespray
 
-kubespray_git_version: 92e8ac9de236e9d3a3c29d2229722798f0e5fa2c
+#kubespray_git_version: 92e8ac9de236e9d3a3c29d2229722798f0e5fa2c
+kubespray_git_version: c7c3d2ba95255c64cbbc40142f15a3f9d0cdf314
 kubespray_git_folder: "{{ playbook_dir }}/target"
 
 kube_oidc_enabled: true
 kube_lodabalancer_apiserver_enabled: false
 crio_enabled: true
 cilium_version: "1.16.8"
-kube_version: "1.32.3"
+kube_version: "1.32.5"
 ipv6_stack: false
 
 local_path_provisioner_claim_root: /opt/local-path-provisioner/
