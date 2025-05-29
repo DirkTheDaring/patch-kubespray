@@ -11,19 +11,7 @@ reset_configurations: []
 
 kubespray_git_repository: https://github.com/kubernetes-sigs/kubespray
 
-# kubespray_git_version: 64447e745e53d3f486356d03ecb195729a302ea1 # (tag: v2.24.0, origin/release-2.24)
-# kubespray_git_version: fdf5988ea8d3d1aea51dc3ea669b9337cba4988f
-# kubespray_git_version: f85111f6d4a4f210c41970373218f7e0627fa8f5 # currently not working with coreos
-# kubespray_git_version: b0be5f2dade91053df773ea2149d558b8e61a446
-# kubespray_git_version: fabf17a10ce8901935fd8d449e1a74c46fdf76c7
-# kubespray_git_version: 6b3eaf8312892f29808d69575e457a05fdb92b6b
-# kubespray_git_version: 5988ba0890b06fb937070fbeb5059861d301e641 # not working
-# kubespray_git_version: b8541962f3f0c32695c5c877379c810b217a1f01
-#kubespray_git_version: 70c73f153b0acda2eae69dee7c5ba50fd54dd7a7
-#kubespray_git_version: bf703354936a1570555c6b2f4de72b9893d720fa
-#kubespray_git_version: 9ec9b3a202ab15f7577cfd755df9b11881edde83
-#kubespray_git_version: b551fe083d181fc753cc6457d7711ef5f136f036
-kubespray_git_version: ad26fe77f5f254c98bcbd81ad136b2536c54877f
+kubespray_git_version: 92e8ac9de236e9d3a3c29d2229722798f0e5fa2c
 kubespray_git_folder: "{{ playbook_dir }}/target"
 
 kube_oidc_enabled: true
