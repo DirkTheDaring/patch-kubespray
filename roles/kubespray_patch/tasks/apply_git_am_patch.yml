@@ -1,0 +1,23 @@
+- name: "Apply git am patch"
+  block:
+    - name: "{{ patch_file }}"
+      ansible.builtin.command:
+        chdir: "{{ kubespray_git_folder }}"
+        argv:
+          - git
+          - am
+          - "{{ patch_file }}"
+      register: patch_result
+      failed_when: patch_result.rc != 0
+
+  rescue:
+    - name: Abort failed git am session
+      ansible.builtin.command:
+        cmd: git am --abort
+      args:
+        chdir: "{{ kubespray_git_folder }}"
+      ignore_errors: true
+
+    - name: Stop play due to patch failure
+      ansible.builtin.fail:
+        msg: "❌ Patch {{ patch_file }} failed. Git am aborted. Halting playbook."

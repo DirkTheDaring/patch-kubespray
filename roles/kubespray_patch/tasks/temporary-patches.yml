@@ -40,12 +40,24 @@
   loop: "{{ lookup('fileglob', patches_name_dir + '/*.patch', wantlist=True )| sort }}"
   when: stat_patches_name_dir.stat.exists
 
-- name: Apply global patches
-  ansible.builtin.command:
-    chdir: "{{ kubespray_git_folder }}"
-    argv:
-      - git
-      - am
-      - "{{ item }}"
-  loop: "{{ lookup('fileglob', patches_global_dir + '/*.patch', wantlist=True )| sort }}"
+#- name: Apply global patches
+#  ansible.builtin.command:
+#    chdir: "{{ kubespray_git_folder }}"
+#    argv:
+#      - git
+#      - am
+#      - "{{ item }}"
+#  loop: "{{ lookup('fileglob', patches_global_dir + '/*.patch', wantlist=True )| sort }}"
+#  when: stat_patches_global_dir.stat.exists
+
+- name: Gather patch list
+  set_fact:
+    patch_list: "{{ lookup('fileglob', patches_global_dir + '/*.patch', wantlist=True) | sort }}"
+
+- name: Apply patches one-by-one
+  include_tasks: apply_git_am_patch.yml
+  loop: "{{ patch_list }}"
+  loop_control:
+    loop_var: patch_file
   when: stat_patches_global_dir.stat.exists
+
