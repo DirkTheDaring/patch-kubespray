@@ -1,0 +1,81 @@
+diff --git a/playbooks/facts.yml b/playbooks/facts.yml
+index 89410cad4..81c75a6f7 100644
+--- a/playbooks/facts.yml
++++ b/playbooks/facts.yml
+@@ -39,3 +39,15 @@
+       setup:
+         gather_subset: '!all,!min,hardware'
+         filter: "ansible_*total_mb"
++
++- name: Detect virtualization type
++  hosts: all
++  tasks:
++    - name: Run systemd-detect-virt
++      command: systemd-detect-virt
++      register: virt_result
++      ignore_errors: true  # Optional: ignores errors if the command fails
++
++    - name: Set ansible_virtualization_type variable
++      set_fact:
++        ansible_virtualization_type: "{{ virt_result.stdout }}"
+diff --git a/roles/etcdctl_etcdutl/tasks/main.yml b/roles/etcdctl_etcdutl/tasks/main.yml
+index 053e14295..8d0b643ea 100644
+--- a/roles/etcdctl_etcdutl/tasks/main.yml
++++ b/roles/etcdctl_etcdutl/tasks/main.yml
+@@ -25,6 +25,7 @@
+     src: "{{ downloads.etcd.dest }}"
+     dest: "{{ local_release_dir }}/"
+     remote_src: true
++    extra_opts: "{{ ['--no-same-owner'] if ansible_virtualization_type == 'lxc' else [] }}"
+   when: container_manager in ['crio', 'containerd']
+ 
+ - name: Copy etcdctl and etcdutl binary from download dir
+diff --git a/roles/kubernetes/preinstall/tasks/0080-system-configurations.yml b/roles/kubernetes/preinstall/tasks/0080-system-configurations.yml
+index 8941a649a..c464412d9 100644
+--- a/roles/kubernetes/preinstall/tasks/0080-system-configurations.yml
++++ b/roles/kubernetes/preinstall/tasks/0080-system-configurations.yml
+@@ -118,14 +118,18 @@
+     - { name: kernel.panic_on_oops, value: 1 }
+     - { name: vm.overcommit_memory, value: 1 }
+     - { name: vm.panic_on_oom, value: 0 }
+-  when: kubelet_protect_kernel_defaults | bool
++  when:
++    - kubelet_protect_kernel_defaults | bool
++    - ansible_virtualization_type != 'lxc'
+ 
+ - name: Check dummy module
+   community.general.modprobe:
+     name: dummy
+     state: present
+     params: 'numdummies=0'
+-  when: enable_nodelocaldns
++  when:
++    - enable_nodelocaldns
++    - ansible_virtualization_type != "lxc"
+ 
+ - name: Set additional sysctl variables
+   ansible.posix.sysctl:
+diff --git a/roles/kubernetes/preinstall/tasks/main.yml b/roles/kubernetes/preinstall/tasks/main.yml
+index a6450808f..5a1473383 100644
+--- a/roles/kubernetes/preinstall/tasks/main.yml
++++ b/roles/kubernetes/preinstall/tasks/main.yml
+@@ -5,6 +5,7 @@
+   when:
+     - not dns_late
+     - kubelet_fail_swap_on
++    - ansible_virtualization_type != 'lxc'
+ 
+ - name: Set facts
+   import_tasks: 0020-set_facts.yml
+diff --git a/roles/kubespray_defaults/defaults/main/download.yml b/roles/kubespray_defaults/defaults/main/download.yml
+index afd41debc..db608ccb3 100644
+--- a/roles/kubespray_defaults/defaults/main/download.yml
++++ b/roles/kubespray_defaults/defaults/main/download.yml
+@@ -450,6 +450,7 @@ downloads:
+       else etcd_digest_checksum | d(None) }}
+     url: "{{ etcd_download_url }}"
+     unarchive: "{{ etcd_deployment_type == 'host' }}"
++    unarchive_extra_opts: "{{ ['--no-same-owner'] if ansible_virtualization_type == 'lxc' else [] }}"
+     owner: "root"
+     mode: "0755"
+     groups:
