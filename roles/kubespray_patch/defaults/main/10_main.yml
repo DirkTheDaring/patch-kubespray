@@ -18,7 +18,7 @@ kubespray_git_folder: "{{ playbook_dir }}/target"
 kube_oidc_enabled: true
 kube_lodabalancer_apiserver_enabled: false
 crio_enabled: true
-cilium_version: "1.16.10"
+cilium_version: "1.17.4"
 kube_version: "1.32.5"
 ipv6_stack: false
 

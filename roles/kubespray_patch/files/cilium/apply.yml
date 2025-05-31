@@ -20,9 +20,10 @@
           {% for url in cilium_etcd_endpoints %}
           - {{ url }}
           {% endfor %}
-          ca-file:   {{ cilium_cert_dir }}/ca_cert.crt
-          key-file:  {{ cilium_cert_dir }}/key.pem
-          cert-file: {{ cilium_cert_dir }}/cert.crt
+          trusted-ca-file: {{ cilium_cert_dir }}/ca_cert.crt
+          ca-file:         {{ cilium_cert_dir }}/ca_cert.crt
+          key-file:        {{ cilium_cert_dir }}/key.pem
+          cert-file:       {{ cilium_cert_dir }}/cert.crt
   when: inventory_hostname == groups['kube_control_plane'][0]
 
 - name: Set up Cilium script directory
@@ -61,6 +62,7 @@
           kubectl -n kube-system patch cm cilium-config --type=json -p="[{'op':'remove','path':'/data/etcd-config'}]"
           kubectl -n kube-system patch cm cilium-config --patch-file patch.json
           kubectl -n kube-system delete pods -l k8s-app=cilium
+          kubectl -n kube-system delete pods -l app.kubernetes.io/name=cilium-operator
         dest: "{{ cilium_script_dir }}/upgrade.sh"
         mode: '0755'
 
@@ -96,6 +98,10 @@
 
     - name: Reset Cilium pods if ConfigMap was patched
       ansible.builtin.command: "{{ kubectl }} -n kube-system delete pods -l k8s-app=cilium"
+      when: patch_result.changed
+
+    - name: Reset Cilium operator pods if ConfigMap was patched
+      ansible.builtin.command: "{{ kubectl }} -n kube-system delete pods -l app.kubernetes.io/name=cilium-operator"
       when: patch_result.changed
 
     - name: Pause for kube-api stability
