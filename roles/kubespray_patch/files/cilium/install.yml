@@ -33,8 +33,22 @@
     src: bpffs
     state: mounted
 
+- name: Debug etcd_cert_dir
+  debug:
+    msg: "etcd_cert_dir: {{ etcd_cert_dir }}"
+
+- name: Debug cilium_cert_dir
+  debug:
+    msg: "cilium_cert_dir: {{ cilium_cert_dir }}"
+
+- name: Debug cilium_identity_allocation_mode
+  debug:
+    msg: "cilium_identity_allocation_mode: {{ cilium_identity_allocation_mode }}"
+
 - name: Cilium | Set up certificate directories and files
-  when: cilium_identity_allocation_mode == "kvstore"
+  # Remove the when statement, because in this version, somehow the cilium_identity_allocation_mode
+  # is overriden here by local default settings, which did happen before
+  #when: cilium_identity_allocation_mode == "kvstore"
   block:
     - name: Create Cilium certificates directory
       ansible.builtin.file:
