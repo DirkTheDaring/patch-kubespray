@@ -12,7 +12,9 @@ reset_configurations: []
 kubespray_git_repository: https://github.com/kubernetes-sigs/kubespray
 
 #kubespray_git_version: 92e8ac9de236e9d3a3c29d2229722798f0e5fa2c
-kubespray_git_version: c7c3d2ba95255c64cbbc40142f15a3f9d0cdf314
+#kubespray_git_version: c7c3d2ba95255c64cbbc40142f15a3f9d0cdf314
+kubespray_git_version: d1bd6100493f1a202b39ea863f43350154c68922
+#kubespray_git_version: 739e5e1c6b07a55eb1b395f62c7ff55b3d51ad3e
 kubespray_git_folder: "{{ playbook_dir }}/target"
 
 kube_oidc_enabled: true
