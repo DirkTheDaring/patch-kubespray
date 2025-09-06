@@ -1,20 +1,20 @@
-From e68b2044908febcb5fad21ff691abbdd212a3ffd Mon Sep 17 00:00:00 2001
-From: DirkTheDaring <baldur@email.de>
-Date: Tue, 8 Oct 2024 11:26:56 +0200
-Subject: [PATCH] set ip6 variable to ansible_default_ipv6.address use
- ansible_default_ipv6['address'] to set ip6 variable if available.
- If ip6 variable is already defined, then do nothing, that should
- ensure backwards compatibility and not break current logic.
+From 9f672b1dd801abb02b1562397ef932ac4c08a6b7 Mon Sep 17 00:00:00 2001
+From: Dietmar Kling <baldur@email.de>
+Date: Sat, 6 Sep 2025 11:54:58 +0000
+Subject: [PATCH] [PATCH] set ip6 variable to ansible_default_ipv6.address use
+ ansible_default_ipv6['address'] to set ip6 variable if available.  If ip6
+ variable is already defined, then do nothing, that should ensure backwards
+ compatibility and not break current logic.
 
 ---
- playbooks/facts.yml | 7 +++++++
+ playbooks/internal_facts.yml | 7 +++++++
  1 file changed, 7 insertions(+)
 
-diff --git a/playbooks/facts.yml b/playbooks/facts.yml
-index 89410cad4..dcbda33df 100644
---- a/playbooks/facts.yml
-+++ b/playbooks/facts.yml
-@@ -32,6 +32,13 @@
+diff --git a/playbooks/internal_facts.yml b/playbooks/internal_facts.yml
+index 5bb97f073..9a4d28296 100644
+--- a/playbooks/internal_facts.yml
++++ b/playbooks/internal_facts.yml
+@@ -30,6 +30,13 @@
          gather_subset: '!all,!min,network'
          filter: "ansible_*_ipv[46]*"
  
@@ -29,5 +29,5 @@ index 89410cad4..dcbda33df 100644
      # ansible_memtotal_mb
      # ansible_swaptotal_mb
 -- 
-2.46.2
+2.51.0
 
